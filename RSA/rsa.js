@@ -122,17 +122,53 @@ function sieveOfEratosthenes(n) {
   return array;
 }
 
+function tupleToBase26(array) {
+  var pow = 1;
+  var num = 0;
+  for (var i = array.length - 1; i >= 0; --i) {
+    num += pow * array[i];
+    pow *= 26;
+  }
+  return num;
+}
+
+function base26ToTriple(num) {
+  var array = [];
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num);
+  return array.reverse();
+}
+
+//Beginning of variables to use
+var blockSize = 3;
 var maxNumber = 10000;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
 const asciiCodeOfA = 97;
+
 function cipher(clearText, n, b) {
   var text = normalizeInput(clearText);
+  if (text.length % blockSize != 0) {
+    var mod = blockSize - (text.length % blockSize);
+    while (mod > 0) {
+      text += "z";
+      mod--;
+    }
+  }
   var cipheredText = [];
 
-  for (var i = 0; i < text.length; ++i) {
-    var number = power(dict[text[i]] + asciiCodeOfA, b, n);
+  for (var i = 0; i < text.length / 3; ++i) {
+    var array = [];
+    array.push(dict[text[i * 3]]);
+    array.push(dict[text[i * 3 + 1]]);
+    array.push(dict[text[i * 3 + 2]]);
+    var number = power(tupleToBase26(array, n), b, n);
     cipheredText.push(number);
   }
   return cipheredText;
@@ -149,19 +185,18 @@ function decipher(array, b, p, q) {
   }
   var clearText = "";
   for (var i = 0; i < array.length; ++i) {
-    var num = power(array[i], a, n) - asciiCodeOfA;
-    while (num < 0) {
-      num += 26;
-      num %= 26;
-    }
-    clearText += dict1[num];
+    var num = power(array[i], a, n);
+    var arr = base26ToTriple(num);
+    clearText += dict1[arr[0]];
+    clearText += dict1[arr[1]];
+    clearText += dict1[arr[2]];
   }
   return clearText;
 }
 
 function generateKey() {
   var p, q;
-  var minPrime = 1000;
+  var minPrime = 60;
   p = Math.floor(Math.random() * primeNumber);
   while (p <= minPrime) {
     p = Math.floor(Math.random() * primeNumber);
@@ -184,21 +219,14 @@ function generateKey() {
   array.push(b);
   return array;
 }
-// var pair = new Pair(0, 0);
-// var a = 28;
-// var b = 75;
-// var g = gcdExtended(a, b, pair);
-// console.log(g);
-// console.log(pair.x, pair.y);
 var array = generateKey();
 console.log(array);
-console.log(cipher("lalalala", array[0], array[3]));
+console.log(cipher("this is a test", array[0], array[3]));
 console.log(
   decipher(
-    cipher("esto es una prueba", array[0], array[3]),
+    cipher("this is a test", array[0], array[3]),
     array[3],
     array[1],
     array[2]
   )
 );
-console.log(array);

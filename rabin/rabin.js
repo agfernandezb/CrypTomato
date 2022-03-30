@@ -9,7 +9,6 @@ var rmAccents = function (inputText) {
     })
     .join("");
 };
-
 var normalizeInput = function (inputText) {
   return rmAccents(inputText)
     .replaceAll(/[^a-zA-Z]/g, "")
@@ -342,3 +341,5 @@ console.log(
     array[1]
   )
 );
+//
+//
