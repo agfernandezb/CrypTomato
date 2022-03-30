@@ -1,5 +1,4 @@
 
-![Logo](https://media.istockphoto.com/vectors/vector-illustration-of-a-funny-tomato-in-cartoon-style-vector-id1189117605?k=20&m=1189117605&s=612x612&w=0&h=008fe5iQb8xqrs96QdlblQTe8Bi8BKZHjuuFVF-ZKWY=)
 
 # CrypTomato
 
