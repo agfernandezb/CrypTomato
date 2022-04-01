@@ -176,8 +176,6 @@ var minValueN = 18279;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
-const asciiCodeOfA = 97;
-const asciiCodeOfZ = 122;
 
 function cipher(clearText, n, B) {
   var text = normalizeInput(clearText);
@@ -210,26 +208,12 @@ function cipher(clearText, n, B) {
   }
   return cipheredText;
 }
-//Decipher function
-function addOne(mask, cota) {
-  var acarreo = 0;
-  if (mask.length >= 1) {
-    mask[0] += 1;
-    if (mask[0] == cota[0]) {
-      acarreo = 1;
-      mask[0] = 0;
-    }
-    for (var i = 1; i < mask.length; ++i) {
-      mask[i] += acarreo;
-      if (mask[i] == cota[i]) {
-        mask[i] = 0;
-      } else acarreo = 0;
-    }
-  }
-}
 
+//Decipher function
 function decipher(array, p, q, B) {
-  if (p * q <= asciiCodeOfZ) {
+  var pp = p;
+  var qq = q;
+  if (p * q <= minValueN) {
     console.log(
       "n es algo pequeño por lo que pueden haber problemas en el descifrado"
     );
@@ -252,14 +236,14 @@ function decipher(array, p, q, B) {
   }
   var toFind = ((B * B) % n) * invFour;
   toFind %= n;
-  var posibilities = [];
-  for (var i = 0; i < alphSize; ++i) {
-    posibilities.push([]);
-    //console.log(posibilities[i].length);
-  }
+  var clearText = [];
+
   for (var i = 0; i < array.length; ++i) {
     var root = toFind + array[i];
-    var roots = findSquareRoots(root, p, q);
+    // console.log("ale", root);
+    // console.log("ale2", pp, qq);
+    var roots = findSquareRoots(root, pp, qq);
+    console.log(i, roots);
     var minus = B * invTwo;
     minus %= n;
     for (var j = 0; j < roots.length; ++j) {
@@ -269,81 +253,30 @@ function decipher(array, p, q, B) {
         roots[j] %= n;
       }
     }
-    //console.log(roots);
+    var toPush = [];
+    toPush.push(array[i]);
     for (var j = 0; j < roots.length; ++j) {
-      if (roots[j] >= asciiCodeOfA && roots[j] <= asciiCodeOfZ) {
-        var index = roots[j] - asciiCodeOfA;
-        if (posibilities[index].indexOf(array[i]) == -1) {
-          posibilities[index].push(array[i]);
+      var diff = true;
+      for (var k = j + 1; k < roots.length; ++k) {
+        if (roots[j] == roots[k]) {
+          diff = false;
+          break;
+        }
+      }
+      if (diff) {
+        if (roots[j] < minValueN) {
+          var arr = base26ToTriple(roots[j]);
+          var toArr = [];
+          toArr.push(roots[j]);
+          var p = [];
+          toArr.push(arr[0]);
+          toArr.push(arr[1]);
+          toArr.push(arr[2]);
+          toPush.push(toArr);
         }
       }
     }
-  }
-  var toPrint = [];
-  var posib = 1;
-  for (var i = 0; i < alphSize; ++i) {
-    var arr = [];
-    arr.push(dict1[i]);
-    if (posibilities[i].length > 0) {
-      arr.push(posibilities[i]);
-      toPrint.push(arr);
-      posib = posib * posibilities[i].length;
-    }
-  }
-  var clearText;
-  // console.log(toPrint);
-  if (posib == 1) {
-    console.log("Solo hay una forma de descifrar el texto:");
-    clearText = "";
-    var map = new Map();
-    for (var i = 0; i < toPrint.length; ++i) {
-      map.set(toPrint[i][1][0], toPrint[i][0]);
-    }
-    for (var i = 0; i < array.length; ++i) {
-      clearText += map.get(array[i]);
-    }
-  } else {
-    if (posib > 1) {
-      console.log(
-        "Hay más de una forma de descifrar el siguiente texto, las posibilidades son las siguientes"
-      );
-      var mask = [];
-      var cota = [];
-      var hasMore = [];
-      for (var i = 0; i < toPrint.length; ++i) {
-        if (toPrint[i][1].length > 1) {
-          mask.push(0);
-          cota.push(toPrint[i][1].length);
-          hasMore.push(true);
-        } else hasMore.push(false);
-      }
-      clearText = [];
-
-      for (var q = 0; q < posib; ++q) {
-        var index = 0;
-        var tempmap = new Map();
-        var tempPosibility = [];
-        var arreglo = [];
-        for (var j = 0; j < toPrint.length; ++j) {
-          if (hasMore[j]) {
-            tempmap.set(toPrint[j][1][mask[index]], toPrint[j][0]);
-            arreglo.push([toPrint[j][0], toPrint[j][1][mask[index]]]);
-            ++index;
-          } else {
-            tempmap.set(toPrint[j][1][0], toPrint[j][0]);
-            arreglo.push([toPrint[j][0], toPrint[j][1][0]]);
-          }
-        }
-        tempPosibility.push(arreglo);
-        var tempText = "";
-        for (var j = 0; j < array.length; ++j) {
-          tempText += tempmap.get(array[j]);
-        }
-        tempPosibility.push(tempText);
-        clearText.push(tempPosibility);
-        addOne(mask, cota);
-      }
-    }
+    clearText.push(toPush);
   }
   return clearText;
 }
@@ -375,14 +308,15 @@ function generateKey() {
 // console.log(pair.x, pair.y);
 var array = generateKey();
 console.log(array);
+//console.log(cipher("abcd", array[0], array[1]));
 console.log(cipher("abcd", array[0], array[1]));
-// console.log(
-//   decipher(
-//     cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
-//     array[2],
-//     array[3],
-//     array[1]
-//   )
-// );
+console.log(
+  decipher(
+    cipher("abcdefghiabc", array[0], array[1]),
+    array[2],
+    array[3],
+    array[1]
+  )
+);
 //
 //
