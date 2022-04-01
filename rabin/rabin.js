@@ -147,7 +147,32 @@ function findSquareRoots(y, p, q) {
   return array;
 }
 
+function tupleToBase26(array) {
+  var pow = 1;
+  var num = 0;
+  for (var i = array.length - 1; i >= 0; --i) {
+    num += pow * array[i];
+    pow *= 26;
+  }
+  return num;
+}
+
+function base26ToTriple(num) {
+  var array = [];
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num);
+  return array.reverse();
+}
+
+//Beginning of cipher and decipher functions, variables to use
+var blockSize = 3;
 var maxNumber = 10000;
+var minValueN = 18279;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
@@ -156,10 +181,27 @@ const asciiCodeOfZ = 122;
 
 function cipher(clearText, n, B) {
   var text = normalizeInput(clearText);
+
+  if (text.length % blockSize != 0) {
+    var mod = blockSize - (text.length % blockSize);
+    while (mod > 0) {
+      text += "x";
+      mod--;
+    }
+  }
   var cipheredText = [];
 
-  for (var i = 0; i < text.length; ++i) {
-    var x = dict[text[i]] + asciiCodeOfA;
+  if (n < minValueN) {
+    console.log("n debe ser mayor o igual a 18279 para poder cifrar");
+    return cipheredText;
+  }
+
+  for (var i = 0; i < text.length / 3; ++i) {
+    var array = [];
+    array.push(dict[text[i * 3]]);
+    array.push(dict[text[i * 3 + 1]]);
+    array.push(dict[text[i * 3 + 2]]);
+    var x = tupleToBase26(array, n);
     var number1 = x + B;
     number1 %= n;
     var number = x * number1;
@@ -168,6 +210,7 @@ function cipher(clearText, n, B) {
   }
   return cipheredText;
 }
+//Decipher function
 function addOne(mask, cota) {
   var acarreo = 0;
   if (mask.length >= 1) {
@@ -307,7 +350,7 @@ function decipher(array, p, q, B) {
 
 function generateKey() {
   var p, q;
-  var minPrime = 1000;
+  var minPrime = 150;
   p = primeArray[Math.floor(Math.random() * primeNumber)];
   while (p <= minPrime) {
     p = primeArray[Math.floor(Math.random() * primeNumber)];
@@ -331,15 +374,15 @@ function generateKey() {
 // console.log(g);
 // console.log(pair.x, pair.y);
 var array = generateKey();
-//console.log(array);
-console.log(cipher("abcd", 8561, 9));
-console.log(
-  decipher(
-    cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
-    array[2],
-    array[3],
-    array[1]
-  )
-);
+console.log(array);
+console.log(cipher("abcd", array[0], array[1]));
+// console.log(
+//   decipher(
+//     cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
+//     array[2],
+//     array[3],
+//     array[1]
+//   )
+// );
 //
 //

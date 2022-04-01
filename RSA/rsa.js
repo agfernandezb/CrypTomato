@@ -143,9 +143,9 @@ function base26ToTriple(num) {
   array.push(num);
   return array.reverse();
 }
-
-//Beginning of variables to use
+//Beginning of cipher and decipher functions, variables to use
 var blockSize = 3;
+var minValueN = 18279;
 var maxNumber = 10000;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
@@ -157,11 +157,16 @@ function cipher(clearText, n, b) {
   if (text.length % blockSize != 0) {
     var mod = blockSize - (text.length % blockSize);
     while (mod > 0) {
-      text += "z";
+      text += "x";
       mod--;
     }
   }
   var cipheredText = [];
+
+  if (n < minValueN) {
+    console.log("n debe ser mayor o igual a 18279 para poder cifrar");
+    return cipheredText;
+  }
 
   for (var i = 0; i < text.length / 3; ++i) {
     var array = [];
