@@ -143,6 +143,52 @@ function base26ToTriple(num) {
   array.push(num);
   return array.reverse();
 }
+//Base64 code
+Base64 = {
+  _Rixits: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+  fromNumber: function (number) {
+    if (
+      isNaN(Number(number)) ||
+      number === null ||
+      number === Number.POSITIVE_INFINITY
+    )
+      throw "The input is not valid";
+    if (number < 0) throw "Can't represent negative numbers now";
+
+    var rixit; // like 'digit', only in some non-decimal radix
+    var residual = Math.floor(number);
+    var result = "";
+    while (true) {
+      rixit = residual % 64;
+      // console.log("rixit : " + rixit);
+      // console.log("result before : " + result);
+      result = this._Rixits.charAt(rixit) + result;
+      // console.log("result after : " + result);
+      // console.log("residual before : " + residual);
+      residual = Math.floor(residual / 64);
+      // console.log("residual after : " + residual);
+
+      if (residual == 0) break;
+    }
+    return result;
+  },
+
+  toNumber: function (rixits) {
+    var result = 0;
+    // console.log("rixits : " + rixits);
+    // console.log("rixits.split('') : " + rixits.split(''));
+    rixits = rixits.split("");
+    for (var e = 0; e < rixits.length; e++) {
+      // console.log("_Rixits.indexOf(" + rixits[e] + ") : " +
+      // this._Rixits.indexOf(rixits[e]));
+      // console.log("result before : " + result);
+      result = result * 64 + this._Rixits.indexOf(rixits[e]);
+      // console.log("result after : " + result);
+    }
+    return result;
+  },
+};
+
 //Beginning of cipher and decipher functions, variables to use
 var blockSize = 3;
 var minValueN = 18279;
@@ -161,7 +207,7 @@ function cipher(clearText, n, b) {
       mod--;
     }
   }
-  var cipheredText = [];
+  var cipheredText = "";
 
   if (n < minValueN) {
     console.log("n debe ser mayor o igual a 18279 para poder cifrar");
@@ -174,11 +220,20 @@ function cipher(clearText, n, b) {
     array.push(dict[text[i * 3 + 1]]);
     array.push(dict[text[i * 3 + 2]]);
     var number = power(tupleToBase26(array, n), b, n);
-    cipheredText.push(number);
+    //console.log(number);
+    var toPush = Base64.fromNumber(number);
+    //console.log(toPush);
+    if (toPush.length < 5) {
+      var need = 5 - toPush.length;
+      for (var j = 0; j < need; ++j) {
+        cipheredText += "0";
+      }
+    }
+    cipheredText += toPush;
   }
   return cipheredText;
 }
-function decipher(array, b, p, q) {
+function decipher(text, b, p, q) {
   var pair = new Pair(0, 0);
   var n = p * q;
   var totient = (p - 1) * (q - 1);
@@ -189,6 +244,10 @@ function decipher(array, b, p, q) {
     a %= totient;
   }
   var clearText = "";
+  var array = [];
+  for (var i = 0; i < text.length / 5; ++i) {
+    array.push(Base64.toNumber(text.substring(5 * i, 5 * i + 5)));
+  }
   for (var i = 0; i < array.length; ++i) {
     var num = power(array[i], a, n);
     var arr = base26ToTriple(num);
@@ -225,11 +284,11 @@ function generateKey() {
   return array;
 }
 var array = generateKey();
-console.log(array);
+//console.log(array);
 console.log(cipher("this is a test", array[0], array[3]));
 console.log(
   decipher(
-    cipher("this is a test", array[0], array[3]),
+    cipher("this is a drill mr drill", array[0], array[3]),
     array[3],
     array[1],
     array[2]
