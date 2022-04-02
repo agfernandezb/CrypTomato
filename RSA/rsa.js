@@ -219,7 +219,7 @@ function cipher(clearText, n, b) {
     array.push(dict[text[i * 3]]);
     array.push(dict[text[i * 3 + 1]]);
     array.push(dict[text[i * 3 + 2]]);
-    var number = power(tupleToBase26(array, n), b, n);
+    var number = power(tupleToBase26(array), b, n);
     //console.log(number);
     var toPush = Base64.fromNumber(number);
     //console.log(toPush);

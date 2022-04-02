@@ -243,7 +243,7 @@ function cipher(clearText, n, B) {
     array.push(dict[text[i * 3]]);
     array.push(dict[text[i * 3 + 1]]);
     array.push(dict[text[i * 3 + 2]]);
-    var x = tupleToBase26(array, n);
+    var x = tupleToBase26(array);
     var number1 = x + B;
     number1 %= n;
     var number = x * number1;
