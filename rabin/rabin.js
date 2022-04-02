@@ -385,7 +385,11 @@ console.log(cipher("abcd", array[0], array[1]));
 var key = [402977, 32315, 1487, 271];
 console.log(
   decipher(
-    cipher("this is a tesuto mrlinguini", key[0], key[1]),
+    cipher(
+      "this is a tesuto mrlinguinighjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfh",
+      key[0],
+      key[1]
+    ),
     key[2],
     key[3],
     key[1]
