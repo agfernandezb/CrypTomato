@@ -352,7 +352,22 @@ function decipher(text, p, q, B) {
       }
     }
   } else {
-    //case in which there is more than one valid root
+    for (var i = 0; i < roots.length; ++i) {
+      if (roots[i].length == 1) {
+        for (var j = 0; j < roots[i][0].length; ++j) {
+          clearText += dict1[roots[i][0][j]];
+        }
+      } else {
+        clearText += "[ ";
+        for (var j = 0; j < roots[i].length; ++j) {
+          for (var k = 0; k < roots[i][0].length; ++k) {
+            clearText += dict1[roots[i][j][k]];
+          }
+          if (j < roots[i].length - 1) clearText += ",";
+        }
+        clearText += " ]";
+      }
+    }
   }
   return clearText;
 }
@@ -378,7 +393,7 @@ function generateKey() {
 }
 var array = generateKey();
 console.log(array);
-//console.log(cipher("abcd", array[0], array[1]));
+console.log(cipher("abcd", array[0], array[1]));
 console.log(cipher("abcd", array[0], array[1]));
 
 //Mas de 1 raiz
@@ -395,12 +410,12 @@ console.log(
     key[1]
   )
 );
-//test random
-console.log(
-  decipher(
-    cipher("this is a tesuto mrlinguini", array[0], array[1]),
-    array[2],
-    array[3],
-    array[1]
-  )
-);
+// //test random
+// console.log(
+//   decipher(
+//     cipher("this is a tesuto mrlinguini", array[0], array[1]),
+//     array[2],
+//     array[3],
+//     array[1]
+//   )
+// );
