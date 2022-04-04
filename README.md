@@ -5,6 +5,15 @@
 The purpose of this project is to implement certain cryptosystems that we developed in our previous project cryptotools https://github.com/jrojasmo/CryptoTools, and implement other higher level cryptosystems, in addition......
 
 
+
+## Badges
+
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+
+![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+
+
+
 ## Authors
 
 - [Agustín Fenández Bermúdez](https://www.github.com/agfernandezb)
