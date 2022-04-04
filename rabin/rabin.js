@@ -147,50 +147,124 @@ function findSquareRoots(y, p, q) {
   return array;
 }
 
+function tupleToBase26(array) {
+  var pow = 1;
+  var num = 0;
+  for (var i = array.length - 1; i >= 0; --i) {
+    num += pow * array[i];
+    pow *= 26;
+  }
+  return num;
+}
+
+function base26ToTriple(num) {
+  var array = [];
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num % 26);
+  num -= num % 26;
+  num /= 26;
+  array.push(num);
+  return array.reverse();
+}
+//Base64 code
+Base64 = {
+  _Rixits: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+  fromNumber: function (number) {
+    if (
+      isNaN(Number(number)) ||
+      number === null ||
+      number === Number.POSITIVE_INFINITY
+    )
+      throw "The input is not valid";
+    if (number < 0) throw "Can't represent negative numbers now";
+
+    var rixit; // like 'digit', only in some non-decimal radix
+    var residual = Math.floor(number);
+    var result = "";
+    while (true) {
+      rixit = residual % 64;
+      // console.log("rixit : " + rixit);
+      // console.log("result before : " + result);
+      result = this._Rixits.charAt(rixit) + result;
+      // console.log("result after : " + result);
+      // console.log("residual before : " + residual);
+      residual = Math.floor(residual / 64);
+      // console.log("residual after : " + residual);
+
+      if (residual == 0) break;
+    }
+    return result;
+  },
+
+  toNumber: function (rixits) {
+    var result = 0;
+    // console.log("rixits : " + rixits);
+    // console.log("rixits.split('') : " + rixits.split(''));
+    rixits = rixits.split("");
+    for (var e = 0; e < rixits.length; e++) {
+      // console.log("_Rixits.indexOf(" + rixits[e] + ") : " +
+      // this._Rixits.indexOf(rixits[e]));
+      // console.log("result before : " + result);
+      result = result * 64 + this._Rixits.indexOf(rixits[e]);
+      // console.log("result after : " + result);
+    }
+    return result;
+  },
+};
+//Beginning of cipher and decipher functions, variables to use
+var blockSize = 3;
 var maxNumber = 10000;
+var minValueN = 18279;
 var primeArray = sieveOfEratosthenes(maxNumber);
 var primeNumber = primeArray.length;
 const alphSize = 26;
-const asciiCodeOfA = 97;
-const asciiCodeOfZ = 122;
 
 function cipher(clearText, n, B) {
   var text = normalizeInput(clearText);
-  var cipheredText = [];
 
-  for (var i = 0; i < text.length; ++i) {
-    var x = dict[text[i]] + asciiCodeOfA;
+  if (text.length % blockSize != 0) {
+    var mod = blockSize - (text.length % blockSize);
+    while (mod > 0) {
+      text += "x";
+      mod--;
+    }
+  }
+  var cipheredText = "";
+
+  if (n < minValueN) {
+    console.log("n debe ser mayor o igual a 18279 para poder cifrar");
+    return cipheredText;
+  }
+
+  for (var i = 0; i < text.length / 3; ++i) {
+    var array = [];
+    array.push(dict[text[i * 3]]);
+    array.push(dict[text[i * 3 + 1]]);
+    array.push(dict[text[i * 3 + 2]]);
+    var x = tupleToBase26(array);
     var number1 = x + B;
     number1 %= n;
     var number = x * number1;
     number %= n;
-    cipheredText.push(number);
+    var toPush = Base64.fromNumber(number);
+    //console.log(toPush);
+    if (toPush.length < 5) {
+      var need = 5 - toPush.length;
+      for (var j = 0; j < need; ++j) {
+        cipheredText += "0";
+      }
+    }
+    cipheredText += toPush;
   }
   return cipheredText;
 }
-function addOne(mask, cota) {
-  var acarreo = 0;
-  if (mask.length >= 1) {
-    mask[0] += 1;
-    if (mask[0] == cota[0]) {
-      acarreo = 1;
-      mask[0] = 0;
-    }
-    for (var i = 1; i < mask.length; ++i) {
-      mask[i] += acarreo;
-      if (mask[i] == cota[i]) {
-        mask[i] = 0;
-      } else acarreo = 0;
-    }
-  }
-}
 
-function decipher(array, p, q, B) {
-  if (p * q <= asciiCodeOfZ) {
-    console.log(
-      "n es algo pequeño por lo que pueden haber problemas en el descifrado"
-    );
-  }
+//Decipher function
+function getRootsToDecipher(array, p, q, B) {
+  var pp = p;
+  var qq = q;
   var pair = new Pair(0, 0);
   var n = p * q;
   gcdExtended(4, p * q, pair);
@@ -209,14 +283,13 @@ function decipher(array, p, q, B) {
   }
   var toFind = ((B * B) % n) * invFour;
   toFind %= n;
-  var posibilities = [];
-  for (var i = 0; i < alphSize; ++i) {
-    posibilities.push([]);
-    //console.log(posibilities[i].length);
-  }
+  var clearText = [];
+
   for (var i = 0; i < array.length; ++i) {
     var root = toFind + array[i];
-    var roots = findSquareRoots(root, p, q);
+    // console.log("ale", root);
+    // console.log("ale2", pp, qq);
+    var roots = findSquareRoots(root, pp, qq);
     var minus = B * invTwo;
     minus %= n;
     for (var j = 0; j < roots.length; ++j) {
@@ -226,79 +299,73 @@ function decipher(array, p, q, B) {
         roots[j] %= n;
       }
     }
-    //console.log(roots);
+    //console.log(i, roots);
+    var toPush = [];
+    //toPush.push(array[i]);
     for (var j = 0; j < roots.length; ++j) {
-      if (roots[j] >= asciiCodeOfA && roots[j] <= asciiCodeOfZ) {
-        var index = roots[j] - asciiCodeOfA;
-        if (posibilities[index].indexOf(array[i]) == -1) {
-          posibilities[index].push(array[i]);
+      var diff = true;
+      for (var k = j + 1; k < roots.length; ++k) {
+        if (roots[j] == roots[k]) {
+          diff = false;
+          break;
+        }
+      }
+      if (diff) {
+        if (roots[j] < minValueN) {
+          var arr = base26ToTriple(roots[j]);
+          var toArr = [];
+          var p = [];
+          toArr.push(arr[0]);
+          toArr.push(arr[1]);
+          toArr.push(arr[2]);
+          toPush.push(toArr);
         }
       }
     }
+    clearText.push(toPush);
   }
-  var toPrint = [];
-  var posib = 1;
-  for (var i = 0; i < alphSize; ++i) {
-    var arr = [];
-    arr.push(dict1[i]);
-    if (posibilities[i].length > 0) {
-      arr.push(posibilities[i]);
-      toPrint.push(arr);
-      posib = posib * posibilities[i].length;
-    }
+  return clearText;
+}
+
+function decipher(text, p, q, B) {
+  if (p * q <= minValueN) {
+    console.log(
+      "n es algo pequeño por lo que pueden haber problemas en el descifrado"
+    );
   }
-  var clearText;
-  // console.log(toPrint);
-  if (posib == 1) {
-    console.log("Solo hay una forma de descifrar el texto:");
-    clearText = "";
-    var map = new Map();
-    for (var i = 0; i < toPrint.length; ++i) {
-      map.set(toPrint[i][1][0], toPrint[i][0]);
-    }
-    for (var i = 0; i < array.length; ++i) {
-      clearText += map.get(array[i]);
+  var array = [];
+  for (var i = 0; i < text.length / 5; ++i) {
+    array.push(Base64.toNumber(text.substring(5 * i, 5 * i + 5)));
+  }
+  var roots = getRootsToDecipher(array, p, q, B);
+  console.log(roots);
+  var maxR = 0; //Gives the maximum number of roots per letter
+  for (var i = 0; i < roots.length; ++i) {
+    maxR = Math.max(roots[i].length, maxR);
+  }
+  //console.log(maxR);
+  var clearText = "";
+  if (maxR == 1) {
+    for (var i = 0; i < roots.length; ++i) {
+      for (var j = 0; j < roots[i][0].length; ++j) {
+        clearText += dict1[roots[i][0][j]];
+      }
     }
   } else {
-    if (posib > 1) {
-      console.log(
-        "Hay más de una forma de descifrar el siguiente texto, las posibilidades son las siguientes"
-      );
-      var mask = [];
-      var cota = [];
-      var hasMore = [];
-      for (var i = 0; i < toPrint.length; ++i) {
-        if (toPrint[i][1].length > 1) {
-          mask.push(0);
-          cota.push(toPrint[i][1].length);
-          hasMore.push(true);
-        } else hasMore.push(false);
-      }
-      clearText = [];
-
-      for (var q = 0; q < posib; ++q) {
-        var index = 0;
-        var tempmap = new Map();
-        var tempPosibility = [];
-        var arreglo = [];
-        for (var j = 0; j < toPrint.length; ++j) {
-          if (hasMore[j]) {
-            tempmap.set(toPrint[j][1][mask[index]], toPrint[j][0]);
-            arreglo.push([toPrint[j][0], toPrint[j][1][mask[index]]]);
-            ++index;
-          } else {
-            tempmap.set(toPrint[j][1][0], toPrint[j][0]);
-            arreglo.push([toPrint[j][0], toPrint[j][1][0]]);
+    for (var i = 0; i < roots.length; ++i) {
+      if (roots[i].length == 1) {
+        for (var j = 0; j < roots[i][0].length; ++j) {
+          clearText += dict1[roots[i][0][j]];
+        }
+      } else {
+        clearText += "[ ";
+        for (var j = 0; j < roots[i].length; ++j) {
+          for (var k = 0; k < roots[i][0].length; ++k) {
+            clearText += dict1[roots[i][j][k]];
           }
+          if (j < roots[i].length - 1) clearText += ",";
         }
-        tempPosibility.push(arreglo);
-        var tempText = "";
-        for (var j = 0; j < array.length; ++j) {
-          tempText += tempmap.get(array[j]);
-        }
-        tempPosibility.push(tempText);
-        clearText.push(tempPosibility);
-        addOne(mask, cota);
+        clearText += " ]";
       }
     }
   }
@@ -307,7 +374,7 @@ function decipher(array, p, q, B) {
 
 function generateKey() {
   var p, q;
-  var minPrime = 1000;
+  var minPrime = 150;
   p = primeArray[Math.floor(Math.random() * primeNumber)];
   while (p <= minPrime) {
     p = primeArray[Math.floor(Math.random() * primeNumber)];
@@ -324,22 +391,31 @@ function generateKey() {
   array.push(q);
   return array;
 }
-// var pair = new Pair(0, 0);
-// var a = 28;
-// var b = 75;
-// var g = gcdExtended(a, b, pair);
-// console.log(g);
-// console.log(pair.x, pair.y);
 var array = generateKey();
-//console.log(array);
-console.log(cipher("abcd", 8561, 9));
+console.log(array);
+console.log(cipher("abcd", array[0], array[1]));
+console.log(cipher("abcd", array[0], array[1]));
+
+//Mas de 1 raiz
+var key = [402977, 32315, 1487, 271];
 console.log(
   decipher(
-    cipher("aghrtertyhhhrnbtyimybvrtcwerzxtvbcd", array[0], array[1]),
-    array[2],
-    array[3],
-    array[1]
+    cipher(
+      "this is a tesuto mrlinguinighjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfhghjghjgjgfhjghjfghjghjghjfghjgfh",
+      key[0],
+      key[1]
+    ),
+    key[2],
+    key[3],
+    key[1]
   )
 );
-//
-//
+// //test random
+// console.log(
+//   decipher(
+//     cipher("this is a tesuto mrlinguini", array[0], array[1]),
+//     array[2],
+//     array[3],
+//     array[1]
+//   )
+// );
