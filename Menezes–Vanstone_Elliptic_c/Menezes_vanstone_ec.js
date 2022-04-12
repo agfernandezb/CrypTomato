@@ -11,7 +11,7 @@ function Elliptic_Curve(a, b, p) {
             y_2 += p;
         }
     }
-    console.log("array points ECC", array_points);
+    // console.log("array points ECC", array_points);
     return array_points;
 }
 function verification_neg_mod(n, p) {
@@ -117,7 +117,6 @@ function generateKey(primeNumber, primeArray, min) {
 function sieveOfEratosthenes(n) {
     var array = [];
     prime = Array.from({ length: n + 1 }, (_, i) => true);
-
     for (p = 2; p * p <= n; p++) {
         if (prime[p] == true) {
             for (i = p * p; i <= n; i += p) prime[i] = false;
@@ -128,14 +127,12 @@ function sieveOfEratosthenes(n) {
     }
     return array;
 }
-
 // Function to return gcd of a and b
 function gcd(a, b) {
     if (a == 0)
         return b;
     return gcd(b % a, a);
 }
-
 // Print generators of n
 function printGenerators(n) {
     // 1 is always a generator
@@ -148,7 +145,6 @@ function printGenerators(n) {
 }
 // var n = 29;
 // printGenerators(n);
-
 function sum_P_Q(point1, point2, p) {
     // compute P+Q were P and Q are points in EC
     x1s = point1[0];
@@ -161,7 +157,6 @@ function sum_P_Q(point1, point2, p) {
     point3 = [x3s, y3s];
     return point3;
 }
-
 function modInverse(a, mod) {
     // validate inputs
     [a, mod] = [Number(a), Number(mod)]
@@ -196,40 +191,24 @@ function inv_aditive(point, p) {
     return point
 }
 
-
-
-
 // ------------------------------------------------- INPUTS -------------------------------------------------------------------------
 var primeArrayz = sieveOfEratosthenes(100000);
 var primeNumberz = primeArrayz.length;
 
-
-console.log(primeArrayz)
-
-
-
 function generateRandomInt(max) {
     return Math.floor(Math.random() * max) + 1;
 }
-
 function generateParams() {
     var arr = [];
-    //Primo
     var prime_z = generateKey(primeNumberz, primeArrayz, 300);
-    //a
     var a = getRandomInt(2, 300);
-    //b
     var b = getRandomInt(2, 300);
-    //k
     var primeArray = sieveOfEratosthenes(prime_z - 1);
     var primeNumber = primeArray.length;
     var kPriv = generateKey(primeNumber, primeArray, 300); // private key for Alice or Bob
-
     arr.push(a);
     arr.push(b);
     arr.push(prime_z);
-    arr.push(kPriv);
-
     return arr;
 }
 
@@ -237,7 +216,41 @@ function generateParams() {
 
 var params = generateParams();
 
-console.log(params) // a,b,prime,k
+console.log("a,b,p",params);
 
-var ECC_array = Elliptic_Curve(params[0],params[1],params[3]);
+function cipher_MV(plain_text,params){
+    
+    var a = params[0];
+    var b = params[1];
+    var p = params[2];
+    console.log("p = ",p);
+    var k = 97;
+    var ECC_array = Elliptic_Curve(a,b,p);
+    var alpha = ECC_array[0];
+    var c1_c2 = a_and_p_product(alpha, k, a, p);
+    var c_1 = c1_c2[0];
+    var c_2 = c1_c2[1];
+    plain_text_x_1_x_2 = plaintext_2_array(plain_text);
+    cipher_list = [];
+    for (let i = 0; i < plain_text_x_1_x_2.length; i++) {
+        var y_1 = (c_1*plain_text_x_1_x_2[i][0])%p;
+        var y_2 = (c_2*plain_text_x_1_x_2[i][1])%p;
+        cipher_list.push([c1_c2, y_1, y_2]);        
+    }
+    return cipher_list
+}
+function decipher_MV(cipher_text_list,params){
+    decipher_list = [];
+    for (let i = 0; i < cipher_text_list.length; i++) {
+        x_1 = (modInverse(cipher_text_list[i][0][0],params[2])*cipher_text_list[i][1])%params[2];
+        x_2 = (modInverse(cipher_text_list[i][0][1],params[2])*cipher_text_list[i][2])%params[2];
+        decipher_list.push([x_1,x_2])
+    }
+    plaintext_sol = array_decipher_2_pt(decipher_list);
+    return plaintext_sol;
+}
 
+var cipher_t = (cipher_MV("Hola mi nombre es frailejon Ernesto Perez",params));
+console.log("Cipher = ",cipher_t);
+var plaint_t = decipher_MV(cipher_t,params);
+console.log("Decipher = ",plaint_t);
