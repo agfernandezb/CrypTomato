@@ -15,43 +15,6 @@ function private_key_a(prime) {
     // console.log(priv_key_a);
     return priv_key_a;
 }
-function point_doubling(alpha, a_ecuation, p) {
-    // compute 2P where P is a point in EC
-    x1 = alpha[0];
-    y1 = alpha[1];
-    lambda = ((((3 * x1 * x1) + a_ecuation) % p) * modInverse((2 * y1) % p, p)) % p;
-    // console.log("x1,y1,lambda",x1,y1,lambda);
-    // console.log((2*y1)%p);
-    x2 = verification_neg_mod((lambda * lambda) - (2 * x1), p);
-    y2 = verification_neg_mod((((x1 - x2) * lambda) - y1), p);
-    doubling = [x2, y2];
-    // console.log('doubling =', doubling);
-    return doubling
-}
-function plaintext_2_array(plain_t) {
-    // 1 Plaintext to array numbers x char
-    array_plain = [];
-    for (let i = 0; i < plain_t.length; i++) {
-        var ascii_p = plain_t.charCodeAt(i);
-        ascii_p = ascii_p.toString(16);
-        array_plain.push([parseInt(ascii_p[0], 16), parseInt(ascii_p[1], 16)]);
-    }
-    //console.log("array",array_plain);
-    return array_plain;
-}
-function array_decipher_2_pt(array_decipher) {
-    // 1 array_decifer in decimal pair to string
-    array_ascii_decipher = [];
-    for (let i = 0; i < array_decipher.length; i++) {
-        pair = array_decipher[i];
-        pair_hexa = [pair[0].toString(16), pair[1].toString(16)];
-        hexa_decipher = pair_hexa.join('');
-        Char_Ascci = String.fromCharCode(parseInt(hexa_decipher, 16));
-        array_ascii_decipher.push(Char_Ascci);
-    }
-    plain_text_decipher = array_ascii_decipher.join('');
-    return plain_text_decipher;
-}
 function generateKey(primeNumber, primeArray, min) {
     var p;
     var minPrime = min;
@@ -140,19 +103,6 @@ function inv_aditive(point, p) {
     return point
 }
 
-function discrete_log(point1_a, point2_a, a, p) {
-    // find the discrete logarithm
-    product = [];
-    for (let i = 1; i < 16; i++) {
-        sol_discret = i;
-        product = a_and_p_product(point2_a, sol_discret, a, p);
-        if (((point1_a[0] - product[0]) === 0) && ((point1_a[1] - product[1]) === 0)) {
-            solution_discrete_log = i;
-        }
-    }
-    // -------------------------------------------------
-    return solution_discrete_log;
-}
 function text_2_list_numbers(plaintext){
     var list = plaintext.split('');
     var array_cipher_list = [];
@@ -190,9 +140,6 @@ function generateParams() {
     arr.push(prime_z,alpha,M);
     return arr;
 }
-
-console.log(generateParams())
-
 
 function cipher_Elgamal(plain_text, a_secret){
     var plain_text = text_2_list_numbers(plain_text);
