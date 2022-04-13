@@ -190,7 +190,6 @@ function inv_aditive(point, p) {
     point = [(point[0]), verification_neg_mod(-point[1], p)];
     return point
 }
-
 // ------------------------------------------------- INPUTS -------------------------------------------------------------------------
 var primeArrayz = sieveOfEratosthenes(100000);
 var primeNumberz = primeArrayz.length;
@@ -211,23 +210,20 @@ function generateParams() {
     arr.push(prime_z);
     return arr;
 }
-
 //--------------------------------------------- Cipher & Decipher ------------------------------------------------------------------ 
-
-var params = generateParams();
-
-console.log("a,b,p",params);
-
-function cipher_MV(plain_text,params){
-    
-    var a = params[0];
-    var b = params[1];
-    var p = params[2];
-    console.log("p = ",p);
+// var params = generateParams();
+// console.log("a,b,p",params);
+// var ECC_array = Elliptic_Curve(params[0],params[1],params[2]);
+function cipher_MV(plain_text,a_secret){ //
+    var a = 125;
+    var b = 104;
+    var p = 41611;
     var k = 97;
     var ECC_array = Elliptic_Curve(a,b,p);
     var alpha = ECC_array[0];
-    var c1_c2 = a_and_p_product(alpha, k, a, p);
+    var beta = a_and_p_product(alpha, a_secret, a, p);
+    var y_0 = a_and_p_product(alpha, k, a, p);
+    var c1_c2 = a_and_p_product(beta, k, a, p);
     var c_1 = c1_c2[0];
     var c_2 = c1_c2[1];
     plain_text_x_1_x_2 = plaintext_2_array(plain_text);
@@ -235,22 +231,27 @@ function cipher_MV(plain_text,params){
     for (let i = 0; i < plain_text_x_1_x_2.length; i++) {
         var y_1 = (c_1*plain_text_x_1_x_2[i][0])%p;
         var y_2 = (c_2*plain_text_x_1_x_2[i][1])%p;
-        cipher_list.push([c1_c2, y_1, y_2]);        
+        cipher_list.push([y_0, y_1, y_2]);        
     }
     return cipher_list
 }
-function decipher_MV(cipher_text_list,params){
+function decipher_MV(cipher_text_list,a_secret){
     decipher_list = [];
+    var c1_c2_d = a_and_p_product(cipher_text_list[0][0], a_secret, 125, 41611);
+    c_1_inv = modInverse(c1_c2_d[0],41611);
+    c_2_inv = modInverse(c1_c2_d[1],41611);
     for (let i = 0; i < cipher_text_list.length; i++) {
-        x_1 = (modInverse(cipher_text_list[i][0][0],params[2])*cipher_text_list[i][1])%params[2];
-        x_2 = (modInverse(cipher_text_list[i][0][1],params[2])*cipher_text_list[i][2])%params[2];
+        x_1 = (c_1_inv*cipher_text_list[i][1])%41611;
+        x_2 = (c_2_inv*cipher_text_list[i][2])%41611;
         decipher_list.push([x_1,x_2])
     }
     plaintext_sol = array_decipher_2_pt(decipher_list);
     return plaintext_sol;
 }
+var a_secret = 7561;
 
-var cipher_t = (cipher_MV("Hola mi nombre es frailejon Ernesto Perez",params));
+var cipher_t = (cipher_MV("Hola mi nombre es frailejon Ernesto Perez",a_secret));
 console.log("Cipher = ",cipher_t);
-var plaint_t = decipher_MV(cipher_t,params);
+
+var plaint_t = decipher_MV(cipher_t,a_secret);
 console.log("Decipher = ",plaint_t);
