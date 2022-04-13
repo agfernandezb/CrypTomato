@@ -1,19 +1,3 @@
-function Elliptic_Curve(a, b, p) {
-    // were  a,b \in N : y^2 = x^3 + ax + b mod p
-    array_points = [];
-    for (let x = 0; x < p; x++) {
-        y_2 = ((x * x * x) + (a * (x)) + b) % p;
-        for (let i = 0; i < 10; i++) {
-            sqrt_y = Math.sqrt(y_2);
-            if (sqrt_y - Math.floor(sqrt_y) == 0) {
-                array_points.push([x, sqrt_y])
-            }
-            y_2 += p;
-        }
-    }
-    console.log("array points ECC", array_points);
-    return array_points;
-}
 function verification_neg_mod(n, p) {
     // negative numbers to positive number in Z_p
     while (n < 0) {
@@ -44,43 +28,6 @@ function point_doubling(alpha, a_ecuation, p) {
     // console.log('doubling =', doubling);
     return doubling
 }
-function a_and_p_product(alpha, escalar, a_ecuation, p) {
-    // Compute the public key (beta) with private key and point in ECC
-    // return beta (array size 2)
-    original_point = alpha
-    //console.log("daaaat",alpha,escalar,a_ecuation,p);
-    bin_esc = escalar.toString(2).split('');
-    //console.log("bin_esc",bin_esc)
-    alpha_array = [];
-    for (let i = 0; i < bin_esc.length; i++) { // length of bin
-        pot = Math.pow(2, bin_esc.length - i - 1)
-        if (bin_esc[i] == '1') { // if bin == 1
-            //console.log("pot",pot);
-            alpha = original_point;
-            for (let j = 0; j < bin_esc.length - i - 1; j++) {
-                //console.log("ROUNDS ALPHA", alpha) ;  
-                if (i == bin_esc.length - 1) {
-                    alpha = original_point;
-                }
-                else {
-                    PP = point_doubling(alpha, a_ecuation, p);
-                    //console.log("PP",PP);
-                    alpha = PP;
-                }
-
-            }
-            alpha_array.unshift(alpha);
-            // console.log("alpha array",alpha_array);                                       
-        }
-    }
-    for (let k = 0; k < alpha_array.length - 1; k++) {
-        sum_p_a = sum_P_Q(alpha_array[k + 1], alpha_array[k], p);
-        //console.log("SUM",sum_p_a);
-        alpha_array[k + 1] = sum_p_a;
-    }
-    //console.log("SOLUTION",alpha_array[alpha_array.length-1]);
-    return alpha_array[alpha_array.length - 1];
-}
 function plaintext_2_array(plain_t) {
     // 1 Plaintext to array numbers x char
     array_plain = [];
@@ -105,7 +52,6 @@ function array_decipher_2_pt(array_decipher) {
     plain_text_decipher = array_ascii_decipher.join('');
     return plain_text_decipher;
 }
-
 function generateKey(primeNumber, primeArray, min) {
     var p;
     var minPrime = min;
@@ -129,15 +75,25 @@ function sieveOfEratosthenes(n) {
     }
     return array;
 }
-
-
 // Function to return gcd of a and b
 function gcd(a, b) {
     if (a == 0)
         return b;
     return gcd(b % a, a);
 }
-
+function power(x, y, p) {
+    let res = 1;
+    x = x % p;
+  
+    if (x == 0) return 0;
+  
+    while (y > 0) {
+      if (y & 1) res = (res * x) % p;
+      y = y >> 1;
+      x = (x * x) % p;
+    }
+    return res;
+}
 // Print generators of n
 function printGenerators(n) {
     // 1 is always a generator
@@ -150,20 +106,6 @@ function printGenerators(n) {
 }
 // var n = 29;
 // printGenerators(n);
-
-function sum_P_Q(point1, point2, p) {
-    // compute P+Q were P and Q are points in EC
-    x1s = point1[0];
-    y1s = point1[1];
-    x2s = point2[0];
-    y2s = point2[1];
-    lambda_sum = (verification_neg_mod((y2s - y1s), p) * (verification_neg_mod(modInverse(x2s - x1s, p), p))) % p;
-    x3s = verification_neg_mod(((lambda_sum * lambda_sum) - x1s - x2s), p);
-    y3s = verification_neg_mod(((lambda_sum * (x1s - x3s)) - y1s), p);
-    point3 = [x3s, y3s];
-    return point3;
-}
-
 function modInverse(a, mod) {
     // validate inputs
     [a, mod] = [Number(a), Number(mod)]
@@ -211,102 +153,79 @@ function discrete_log(point1_a, point2_a, a, p) {
     // -------------------------------------------------
     return solution_discrete_log;
 }
-
-
-
-
-function Elgamal_ECC_cipher(plainText, a, b, p, kPrivBob) {
-    // var primeArray = sieveOfEratosthenes(p-1);
-    // var primeNumber = primeArray.length;
-    var Plain_text_array = plaintext_2_array(plainText);
-    var ECC_array = Elliptic_Curve(a, b, p);  // a,b,p : ((y^2 = x^3 + ax + b) mod p), return array of points in ECC
-    var alpha = ECC_array[0];
-    var random_K = 13; // random K of text
-    var betaBob = a_and_p_product(alpha, kPrivBob, a, p);
-    array_char_ciphers = [];
-    for (let i = 0; i < Plain_text_array.length; i++) {
-        d_1 = Plain_text_array[i][0];
-        d_2 = Plain_text_array[i][1];
-        P_1 = a_and_p_product(alpha, d_1, a, p);
-        P_2 = a_and_p_product(alpha, d_2, a, p);
-        //console.log("Pes",P_1,P_2);
-        K_c = a_and_p_product(betaBob, random_K, a, p);
-        //console.log("KK",K_c); 
-        C_1 = sum_P_Q(P_1, K_c, p);
-        C_2 = sum_P_Q(P_2, K_c, p);
-        //console.log("Cs",C_1,C_2);
-        array_char_ciphers.push([C_1, C_2])
+function text_2_list_numbers(plaintext){
+    var list = plaintext.split('');
+    var array_cipher_list = [];
+    for (let i = 0; i < list.length; i++) {
+        array_cipher_list.push(plaintext[i].charCodeAt(0));
     }
-    console.log("Cipher : ", array_char_ciphers);
-    return array_char_ciphers;
+    return array_cipher_list
 }
 
-function Elgamal_ECC_decipher(Cipher_text_array, a, b, p, kPrivBob) {
-    var ECC_array = Elliptic_Curve(a, b, p);  // a,b,p : ((y^2 = x^3 + ax + b) mod p), return array of points in ECC
-    var alpha = ECC_array[0];
-    var array_char_deciphers = [];
-    var random_K = 13; // random K of text
-    var y_0 = a_and_p_product(alpha, random_K, a, p);
-    K_c2 = a_and_p_product(y_0, kPrivBob, a, p);
-    //console.log(K_c2);
-    for (let i = 0; i < Cipher_text_array.length; i++) {
-        P_1p = sum_P_Q(Cipher_text_array[i][0], inv_aditive(K_c2, p), p);
-        P_2p = sum_P_Q(Cipher_text_array[i][1], inv_aditive(K_c2, p), p);
-        //console.log("PES_2",P_1p,P_2p);
-        D_1 = discrete_log(P_1p, alpha, a, p);
-        D_2 = discrete_log(P_2p, alpha, a, p);
-        //console.log("des",D_1,D_2);
-        char = [D_1, D_2];
-        array_char_deciphers.push(char);
+function chipher_list_2_plaintext(cipher_list){
+    var plaint_text_array = [];
+    for (let i = 0; i < cipher_list.length; i++) {
+        plaint_text_array.push(String.fromCharCode(cipher_list[i]));
     }
-    console.log("array char", array_char_deciphers);
-    plaintext_sol = array_decipher_2_pt(array_char_deciphers);
-    console.log("Decipher : ", plaintext_sol);
-    return plaintext_sol;
+    plain_text = (plaint_text_array).join('');
+    return plain_text
 }
-
 
 // ------------------------------------------------- INPUTS -------------------------------------------------------------------------
-var primeArrayz = sieveOfEratosthenes(100000);
-var primeNumberz = primeArrayz.length;
 
 function generateRandomInt(max) {
     return Math.floor(Math.random() * max) + 1;
 }
 
 function generateParams() {
-    var arr = [];
-    //Primo
-    var prime_z = generateKey(primeNumberz, primeArrayz, 300);
-    //a
-    var a = getRandomInt(2, 300);
-    //b
-    var b = getRandomInt(2, 300);
-    //k
+    var primeArrayz = sieveOfEratosthenes(100000);
+    var primeNumberz = primeArrayz.length;
+    var prime_z = generateKey(primeNumberz, primeArrayz, 600);
     var primeArray = sieveOfEratosthenes(prime_z - 1);
     var primeNumber = primeArray.length;
-    var kPriv = generateKey(primeNumber, primeArray, 300); // private key for Alice or Bob
+    var arr = [];
 
-    arr.push(a);
-    arr.push(b);
-    arr.push(prime_z);
-    arr.push(kPriv);
-
+    var alpha = generateKey(primeNumber, primeArray, 1);
+    var M = getRandomInt(2, 100);
+    arr.push(prime_z,alpha,M);
     return arr;
 }
 
+console.log(generateParams())
+
+
+function cipher_Elgamal(plain_text, a_secret){
+    var plain_text = text_2_list_numbers(plain_text);
+    // var params = generateParams();
+    var p = 24847;
+    var alpha = 5119;
+    var M = 39;
+    var beta = power(alpha, a_secret,p);
+    var y_1 = power(alpha, M ,p);
+    var cipher_list = [];
+    cipher_list.push(y_1);
+    for (let i = 0; i < plain_text.length; i++) {
+        var y_2 = (plain_text[i])*(power(beta,M,p))%p;
+        cipher_list.push(y_2);
+    }
+    console.log(cipher_list);
+    return(cipher_list);
+}
+
+function decipher_Elgamal(cipher_text, a_secret) {
+    var inv_y_1 = modInverse(power(cipher_text[0],a_secret,24847),24847);
+    var decipher_list = [];
+    for (let i = 1; i < cipher_text.length; i++) {
+        decipher_list.push((cipher_text[i]*inv_y_1)%24847);
+    }    
+    var plaint_text = chipher_list_2_plaintext(decipher_list);
+    return plaint_text
+}
+
+
 //--------------------------------------------- Cipher & Decipher ------------------------------------------------------------------ 
 
-var params = generateParams();
-//var params = [194, 198, 5039, 743];
-//Normalize Input
-list_cipher = Elgamal_ECC_cipher("hola", params[0], params[1], params[2], params[3]);
-// Curva Elíptica: a, b, primo
-// Punto Base (alpha) (Interno)
-// K_of_priv_key_bob
+Text_f = "Hola mi nombre es frailejon Ernesto Perez"
 
-
-Elgamal_ECC_decipher(list_cipher, params[0], params[1], params[2], params[3]);
-// Curva Elíptica: a, b, primo
-// Punto Base (alpha) (Interno)
-// K_of_priv_key_bob
+var cipher = cipher_Elgamal(Text_f,111);
+console.log(decipher_Elgamal(cipher,111));
