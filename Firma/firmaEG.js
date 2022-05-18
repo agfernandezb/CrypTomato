@@ -246,8 +246,8 @@ function base64ToArr(str, sep){
     return arr;
 }
 /////////////////////////////////
-const minNumber = 100000;
-const maxNumber = 10000000;
+const minNumber = 65536;
+const maxNumber = 9000000;
 const pArr = sieveOfEratosthenes(minNumber, maxNumber);
 const pArrLen = pArr.length;
 //////////////////////////////////
