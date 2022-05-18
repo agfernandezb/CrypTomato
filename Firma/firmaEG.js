@@ -41,6 +41,30 @@ function power(x, y, p) {
     return res;
 }
 
+function powerBigInt(x, y, p) {
+    // Initialize result
+    let res = 1n;
+    // Update x if it is more
+    // than or equal to p
+    x = x % p;
+    if (x == 0n)
+        return 0n;
+
+    while (y > 0n) {
+        // If y is odd, multiply
+        // x with result
+        if (y & 1n)
+            res = (res * x) % p;
+
+        // y must be even now
+
+        // y = $y/2
+        y = y >> 1n;
+        x = (x * x) % p;
+    }
+    return res;
+}
+
 function prime_factors(num) {
     function is_prime(num) {
         for (let i = 2; i <= Math.sqrt(num); i++) {
@@ -63,7 +87,7 @@ function gcd(a, b) {
     return gcd(b, a % b);
 }
 //// KEY MANAGEMENT
-function sieveOfEratosthenes(n) {
+function sieveOfEratosthenes(min, n) {
     let array = [];
     let prime = Array.from({ length: n + 1 }, (_, i) => true);
 
@@ -72,7 +96,7 @@ function sieveOfEratosthenes(n) {
             for (let i = p * p; i <= n; i += p) prime[i] = false;
         }
     }
-    for (let i = 2; i <= n; i++) {
+    for (let i = min; i <= n; i++) {
         if (prime[i] == true) array.push(i);
     }
     return array;
@@ -149,26 +173,28 @@ function sign(numb, p, alpha, a) { // k entre 1 y q
         */
         ranK = getRandomInt(2, p - 2);
         while (gcd(ranK, p - 1) != 1) ranK = getRandomInt(2, p - 2);
-        gamma = power(alpha, ranK, p) % p;
-        let deltaBig = BigInt((numb - a * gamma) * modInverse(ranK, p - 1)) % BigInt(p - 1);
+        gamma = powerBigInt(BigInt(alpha), BigInt(ranK), BigInt(p));
+        let deltaBig = ((BigInt(numb) - BigInt(a) * gamma) * BigInt(modInverse(ranK, p - 1))) % BigInt(p - 1);
         delta = Number(deltaBig);
         if (delta < 0) delta += p - 1;
     }
     let arr = [];
-    arr.push(gamma);
+    arr.push(Number(gamma));
     arr.push(delta);
     return arr;
 }
 
 function verify(numb, gamma, delta, p, alpha, beta) {
-    return power(alpha, numb, p) == Number(BigInt(power(beta, gamma, p) * power(gamma, delta, p)) % BigInt(p));
+    //console.log(powerBigInt(BigInt(alpha), BigInt(numb), BigInt(p)));
+    //console.log((powerBigInt(BigInt(beta), BigInt(gamma), BigInt(p)) * powerBigInt(BigInt(gamma), BigInt(delta), BigInt(p))) % BigInt(p));
+    return powerBigInt(BigInt(alpha), BigInt(numb), BigInt(p)) == (powerBigInt(BigInt(beta), BigInt(gamma), BigInt(p)) * powerBigInt(BigInt(gamma), BigInt(delta), BigInt(p))) % BigInt(p);
 }
 
 function signSha(shaString, p, alpha, a) {
     let arr = [];
     let signArr = [];
     let jump = 4;
-    let baseSep = 3;
+    let baseSep = 5;
     for (let i = 0; i < shaString.length / jump; i++) {
         arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
     }
@@ -189,7 +215,7 @@ function verifySha(shaString, signStr, p, alpha, beta) {
     let jump = 4;
     let signArr = [];
     let auxArr = [];
-    let baseSep = 3;
+    let baseSep = 5;
     for (let i = 0; i < shaString.length / jump; i++) {
         arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
     }
@@ -201,14 +227,6 @@ function verifySha(shaString, signStr, p, alpha, beta) {
     }
     //console.log(signArr);
     for (let i = 0; i < arr.length; i++) {
-        /*
-        if (!verify(arr[i], signArr[i][0], signArr[i][1], p, q, alpha, beta)) {
-          console.log('MUERE EN ' + arr[i])
-        } else {
-          console.log('CORRECTO PARA ' + arr[i])
-        }
-        */
-        //console.log(verify(arr[i], signArr[i][0], signArr[i][1], p, alpha, beta));
         if (!verify(arr[i], signArr[i][0], signArr[i][1], p, alpha, beta)) return false;
     }
     return true;
@@ -227,10 +245,12 @@ function base64ToArr(str, sep){
     }
     return arr;
 }
-const maxNumber = 262000;
-const pArr = sieveOfEratosthenes(maxNumber).slice(125);
+/////////////////////////////////
+const minNumber = 100000;
+const maxNumber = 10000000;
+const pArr = sieveOfEratosthenes(minNumber, maxNumber);
 const pArrLen = pArr.length;
-
+//////////////////////////////////
 function generateKey() {
     let key = [];
     let ranNum = getRandomInt(0, pArrLen);
@@ -264,20 +284,9 @@ function generateKey() {
 let text = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e807ed283467e42ffff';
 let text2 = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e801ed283467e42ffff';
 let llave = generateKey(); // [p, alpha, beta, a]
-console.log(llave);
-console.log(arrToBase64(llave, 4));
-console.log(base64ToArr(arrToBase64(llave, 4), 4));
-//let llave = [17, 6007, 5, 12, 9]; //el q está mal
+//console.log(llave);
+console.log(arrToBase64(llave, 5));
+console.log(base64ToArr(arrToBase64(llave, 5), 5));
 let firma = signSha(text, llave[0], llave[1], llave[3]);
 console.log(firma);
 console.log(verifySha(text, firma, llave[0], llave[1], llave[2]));
-
-/*
-let llave = generateKey();
-console.log(llave);
-let test = getRandomInt(0, 255);
-let ranK = getRandomInt(1, llave[1] - 1);
-let firma = sign(test, llave[0], llave[1], llave[2], llave[4]);
-console.log(firma);
-console.log(verify(test+1, firma[0], firma[1], llave[0], llave[1], llave[2], llave[3]));
-*/

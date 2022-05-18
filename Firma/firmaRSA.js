@@ -27,16 +27,26 @@ function modInverse(a, mod) {
     return (y % mod + mod) % mod
 }
 
-function power(x, y, p) {
-    let res = 1;
-    x = Number(BigInt(x) % BigInt(p));
+function powerBigInt(x, y, p) {
+    // Initialize result
+    let res = 1n;
+    // Update x if it is more
+    // than or equal to p
+    x = x % p;
+    if (x == 0n)
+        return 0n;
 
-    if (x == 0) return 0;
+    while (y > 0n) {
+        // If y is odd, multiply
+        // x with result
+        if (y & 1n)
+            res = (res * x) % p;
 
-    while (y > 0) {
-        if (y & 1) res = Number(BigInt(res * x) % BigInt(p));
-        x = Number((BigInt(x) * BigInt(x)) % BigInt(p));
-        y = y >> 1;
+        // y must be even now
+
+        // y = $y/2
+        y = y >> 1n;
+        x = (x * x) % p;
     }
     return res;
 }
@@ -63,7 +73,7 @@ function gcd(a, b) {
     return gcd(b, a % b);
 }
 //// KEY MANAGEMENT
-function sieveOfEratosthenes(n) {
+function sieveOfEratosthenes(min, n) {
     let array = [];
     let prime = Array.from({ length: n + 1 }, (_, i) => true);
 
@@ -72,7 +82,7 @@ function sieveOfEratosthenes(n) {
             for (let i = p * p; i <= n; i += p) prime[i] = false;
         }
     }
-    for (let i = 2; i <= n; i++) {
+    for (let i = min; i <= n; i++) {
         if (prime[i] == true) array.push(i);
     }
     return array;
@@ -138,29 +148,29 @@ Base64 = {
 };
 
 function sign(x, p, q, a) { // k entre 1 y q
-    return power(x, a, p * q);
+    return powerBigInt(BigInt(x), BigInt(a), BigInt(p) * BigInt(q));
 }
 
 function verify(x, y, p, q, b) {
-    return x % (p * q) == power(y, b, p * q);
+    return BigInt(x) % (BigInt(p) * BigInt(q)) == powerBigInt(BigInt(y), BigInt(b), BigInt(p) * BigInt(q));
 }
 
 function signSha(shaString, p, q, a) {
     let arr = [];
     let signArr = [];
     let jump = 4;
-    let baseSep = 4;
+    let baseSep = 6;
     for (let i = 0; i < shaString.length / jump; i++) {
         arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
     }
     for (let i = 0; i < arr.length; i++) {
         signArr.push(sign(arr[i], p, q, a));
     }
-    //console.log(signArr);
+    //console.log(arr);
     // Turn to base64
     var signText = "";
     for (let i = 0; i < signArr.length; i++) {
-        signText += Base64.fromNumber(signArr[i], baseSep);
+        signText += Base64.fromNumber(Number(signArr[i]), baseSep);
     }
     return signText;
 }
@@ -170,24 +180,17 @@ function verifySha(shaString, signStr, p, q, b) {
     let jump = 4;
     let signArr = [];
     //let auxArr = [];
-    let baseSep = 4;
+    let baseSep = 6;
     for (let i = 0; i < shaString.length / jump; i++) {
         arr.push(Number("0x" + shaString.slice(i * jump, (i + 1) * jump)));
     }
-    for (var i = 0; i < signStr.length / baseSep; i ++) {
+    for (var i = 0; i < signStr.length / baseSep; i++) {
         signArr.push(Base64.toNumber(signStr.substring(baseSep * i, baseSep * (i + 1))));
     }
-    console.log(signArr);
+    //console.log(signArr);
     for (let i = 0; i < arr.length; i++) {
-        /*
-        if (!verify(arr[i], signArr[i][0], signArr[i][1], p, q, alpha, beta)) {
-          console.log('MUERE EN ' + arr[i])
-        } else {
-          console.log('CORRECTO PARA ' + arr[i])
-        }
-        */
-        console.log(verify(arr[i], signArr[i], p, q, b));
-        //if (!verify(arr[i], signArr[i][0], signArr[i][1], p, q, b)) return false;
+        //console.log(verify(arr[i], signArr[i], p, q, b));
+        if (!verify(arr[i], signArr[i], p, q, b)) return false;
     }
     return true;
 }
@@ -205,10 +208,12 @@ function base64ToArr(str, sep) {
     }
     return arr;
 }
-const maxNumber = 7000;
-const pArr = sieveOfEratosthenes(maxNumber).slice(50);
+/////////////////////////////////////////////////////////////
+const minNumber = 10000;
+const maxNumber = 262000;
+const pArr = sieveOfEratosthenes(minNumber, maxNumber);
 const pArrLen = pArr.length;
-
+///////////////////////////////////////////////////////////
 function generateKey() {
     let key = [];
     let p, q;
@@ -252,20 +257,13 @@ function generateKey() {
 let text = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e807ed283467e42ffff';
 let text2 = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e801ed283467e42ffff';
 let llave = generateKey(); // [p, q, b, a]
-console.log(llave);
-//console.log(arrToBase64(llave, 4));
-//console.log(base64ToArr(arrToBase64(llave, 4), 4));
-//let llave = [17, 6007, 5, 12, 9]; //el q está mal
+//let llave = [4783, 5479, 5848495, 8685823];
+//console.log(llave);
+console.log(arrToBase64(llave, 6));
+console.log(base64ToArr(arrToBase64(llave, 6), 6));
 let firma = signSha(text, llave[0], llave[1], llave[3]);
 console.log(firma);
 console.log(verifySha(text, firma, llave[0], llave[1], llave[2]));
-
-/*
-let llave = generateKey();
-console.log(llave);
-let test = getRandomInt(0, 255);
-let ranK = getRandomInt(1, llave[1] - 1);
-let firma = sign(test, llave[0], llave[1], llave[2], llave[4]);
-console.log(firma);
-console.log(verify(test+1, firma[0], firma[1], llave[0], llave[1], llave[2], llave[3]));
-*/
+//let test = sign(20499, llave[0], llave[1], llave[3]);
+//console.log(test);
+//console.log(verify(20499, Number(test), llave[0], llave[1], llave[2]));
