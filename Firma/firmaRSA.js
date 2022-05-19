@@ -151,8 +151,8 @@ function sign(x, p, q, a) { // k entre 1 y q
     return powerBigInt(BigInt(x), BigInt(a), BigInt(p) * BigInt(q));
 }
 
-function verify(x, y, p, q, b) {
-    return BigInt(x) % (BigInt(p) * BigInt(q)) == powerBigInt(BigInt(y), BigInt(b), BigInt(p) * BigInt(q));
+function verify(x, y, n, b) {
+    return BigInt(x) % BigInt(n) == powerBigInt(BigInt(y), BigInt(b), BigInt(n));
 }
 
 function signSha(shaString, p, q, a) {
@@ -175,7 +175,7 @@ function signSha(shaString, p, q, a) {
     return signText;
 }
 
-function verifySha(shaString, signStr, p, q, b) {
+function verifySha(shaString, signStr, n, b) {
     let arr = [];
     let jump = 4;
     let signArr = [];
@@ -190,7 +190,7 @@ function verifySha(shaString, signStr, p, q, b) {
     //console.log(signArr);
     for (let i = 0; i < arr.length; i++) {
         //console.log(verify(arr[i], signArr[i], p, q, b));
-        if (!verify(arr[i], signArr[i], p, q, b)) return false;
+        if (!verify(arr[i], signArr[i], n, b)) return false;
     }
     return true;
 }
@@ -259,11 +259,12 @@ let text2 = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e801ed283467e42ffff';
 let llave = generateKey(); // [p, q, b, a]
 //let llave = [4783, 5479, 5848495, 8685823];
 //console.log(llave);
-console.log(arrToBase64(llave, 6));
-console.log(base64ToArr(arrToBase64(llave, 6), 6));
 let firma = signSha(text, llave[0], llave[1], llave[3]);
 console.log(firma);
-console.log(verifySha(text, firma, llave[0], llave[1], llave[2]));
+let llaveVer = [ llave[0] * llave[1], llave[2]];
+console.log(arrToBase64(llaveVer, 6));
+console.log(base64ToArr(arrToBase64(llaveVer, 6), 6));
+console.log(verifySha(text, firma, llaveVer[0], llaveVer[1]));
 //let test = sign(20499, llave[0], llave[1], llave[3]);
 //console.log(test);
 //console.log(verify(20499, Number(test), llave[0], llave[1], llave[2]));

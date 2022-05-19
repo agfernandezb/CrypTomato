@@ -284,9 +284,10 @@ function generateKey() {
 let text = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e807ed283467e42ffff';
 let text2 = '50137ab0be5e0c73ee0cd747f457e71822d6d5dcf00a7e801ed283467e42ffff';
 let llave = generateKey(); // [p, alpha, beta, a]
-//console.log(llave);
-console.log(arrToBase64(llave, 5));
-console.log(base64ToArr(arrToBase64(llave, 5), 5));
+console.log(llave);
 let firma = signSha(text, llave[0], llave[1], llave[3]);
 console.log(firma);
+llave.pop();
+console.log(arrToBase64(llave, 5));
+console.log(base64ToArr(arrToBase64(llave, 5), 5));
 console.log(verifySha(text, firma, llave[0], llave[1], llave[2]));
