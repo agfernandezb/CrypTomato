@@ -202,12 +202,14 @@ function generateParams() {
     var prime_z = generateKey(primeNumberz, primeArrayz, 300);
     var a = getRandomInt(2, 300);
     var b = getRandomInt(2, 300);
+    var a_secret = getRandomInt(2, 300);
     var primeArray = sieveOfEratosthenes(prime_z - 1);
     var primeNumber = primeArray.length;
     var kPriv = generateKey(primeNumber, primeArray, 300); // private key for Alice or Bob
     arr.push(a);
     arr.push(b);
     arr.push(prime_z);
+    arr.push(a_secret);
     return arr;
 }
 //--------------------------------------------- Cipher & Decipher ------------------------------------------------------------------ 
@@ -248,7 +250,8 @@ function decipher_MV(cipher_text_list,a_secret){
     plaintext_sol = array_decipher_2_pt(decipher_list);
     return plaintext_sol;
 }
-var a_secret = 7561;
+params = generateParams();
+var a_secret = params[3];
 
 var cipher_t = (cipher_MV("Hola mi nombre es frailejon Ernesto Perez",a_secret));
 console.log("Cipher = ",cipher_t);
