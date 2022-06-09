@@ -1,7 +1,7 @@
 var canvas = document.getElementById('canvas1');
 var ctx = canvas.getContext('2d');
 const image1 = new Image();           
-image1.src = 'bart2.png';              // Path de la imagen, o URL   ____INPUT____
+image1.src = 'cat.PNG';              // Path de la imagen, o URL   ____INPUT____
 image1.crossOrigin = 'anonymous';
 const width_image = (image1.width)    // Tamaño de la imagen Ancho
 const height_image = (image1.height)  // Tamaño de la imagen Alto
