@@ -10,6 +10,11 @@ canvas.height = height_image;
 
 console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image )
 
+function array_zeros_new_image(height_image,width_image){
+    index_cant = height_image*width_image*4*16
+    array_zeros_total = Array(index_cant).fill(0)
+    return array_zeros_total
+}
 
 function arrayMax(arr) { // Max of array
     return arr.reduce(function (p, v) {
@@ -17,8 +22,20 @@ function arrayMax(arr) { // Max of array
     });
   }
 
-function aproximations_colors(R,G,B){
+function prod_lattice(arr1,arr2){
+    arr3 = [0,0,0,0];
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i]==arr2[i] && arr1 == 255 ) {
+            arr3[i] = 255
+        }
+        else{
+            arr3[i] = 0
+        }
+    }
+    return arr3
+}
 
+function aproximations_colors(R,G,B){
     // console.log(R,G,B);
     colors_rgb = [R, G, B];
     max = arrayMax(colors_rgb);
@@ -106,9 +123,10 @@ function aproximations_colors(R,G,B){
     colors = [R, G, B]
     return colors;
 }
-
-function SDES_cipher_image(scannedData){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
-    
+function SDES_cipher_image(scannedData,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
+    //scannedData_2 = array_zeros_new_image(height_image,width_image);
+    i_size_array = width_image*4;
+    j_size_array = height_image*4;
     // Imagen normalizada
     for (let i = 0; i <= scannedData.length-4; i+=4) {
         R = scannedData[i];
@@ -120,16 +138,36 @@ function SDES_cipher_image(scannedData){ // Función que cifra la imagen pos. [j
         scannedData[i+1] = colors[1];
         scannedData[i+2] = colors[2];
     }
+    
 
     console.log(scannedData)
     return scannedData
 };
 
 
-// ---------------------
+// ---------------- CONFIGURATION COLORS -----------
+// [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
 
+black = [255,255,255,255];
+red = [255,0,0,255];
+green = [0,255,0,255];
+blue = [0,0,255,255];
+yellow = [255,255,0,255];
+magenta = [255,0,255,255];
+cyan = [0,255,255,255];
+white = [255,255,255,255];
 
+K = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
 
+R = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+G = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
+B = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+
+Y = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
+M = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
+C = [[cyan,white],[cyan,white],[white,cyan],[white,cyan],[white,white], [yellow,black],[yellow,black],[yellow,black],[black,yellow],[black,yellow], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,yellow], [black,black]];
+
+W = [[white,white],[white,white],[white,white],[magenta,magenta],[magenta,magenta], [yellow,yellow],[yellow,yellow],[yellow,yellow],[cyan,cyan],[cyan,cyan], [black,black],[black,black],[black,black],[black,black],[black,black], [black,black]];
 
 
 // --------------------- INPUT PARA IMAGEN -----------------------
