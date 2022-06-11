@@ -2,20 +2,34 @@ var canvas = document.getElementById('canvas1');
 var ctx = canvas.getContext('2d');
 
 const image1 = new Image();           
-image1.src = 'cat.PNG';              // Path de la imagen, o URL   ____INPUT____
+image1.src = 'bart2.png';              // Path de la imagen, o URL   ____INPUT____
 image1.crossOrigin = 'anonymous';
-
 const width_image = (image1.width)    // Tamaño de la imagen Ancho
 const height_image = (image1.height)  // Tamaño de la imagen Alto
 canvas.width = width_image;
 canvas.height = height_image;
 
+
+// const image2 = new Image();           
+// image2.src = '0000.png';              // Path de la imagen, o URL   ____INPUT____
+// image2.crossOrigin = 'anonymous';
+// const width_image2 = (image2.width)    // Tamaño de la imagen Ancho
+// const height_image2 = (image2.height)  // Tamaño de la imagen Alto
+// canvas.width = width_image2;
+// canvas.height = height_image2;
+
+
 console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image )
 
 function array_zeros_new_image(height_image,width_image){
-    index_cant = height_image*width_image*4*16
-    array_zeros_total = Array(index_cant).fill(0)
-    return array_zeros_total
+    index_cant = height_image*width_image*4*16;
+    array_zeros_total = Array(index_cant).fill(0);
+    return array_zeros_total;
+}
+function array_zeros_new_image_d(height_image,width_image){
+    index_cant = height_image*width_image*4;
+    array_zeros_total = Array(index_cant).fill(0);
+    return array_zeros_total;
 }
 
 function arrayMax(arr) { // Max of array
@@ -24,10 +38,9 @@ function arrayMax(arr) { // Max of array
     });
 }
 
-function prod_lattice(arr1,arr2){
-    arr3 = [0,0,0,0];
-    for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i]==arr2[i] && arr1 == 255 ) {
+function prod_lattice(arr1,arr2,arr3){
+    for (let i = 0; i < arr3.length; i++) {
+        if (arr1[i]==arr2[i] && arr1[i] == 255 ) {
             arr3[i] = 255
         }
         else{
@@ -36,9 +49,11 @@ function prod_lattice(arr1,arr2){
     }
     return arr3
 }
+
 function random_array(array){
-    array = arr1.sort(function() { return Math.random() - 0.5 });
-    return array
+    // array_n = array;
+    array_n = array.sort(function() { return Math.random() - 0.5 });
+    return array_n
 }
 
 function aproximations_colors(R,G,B){
@@ -112,18 +127,211 @@ function aproximations_colors(R,G,B){
     return colors;
 }
 
+
+// ---------------- CONFIGURATION COLORS -----------
+
+function transformation_m16(R,G,B,i_g,width_image,scannedData_new1,scannedData_new2){
+    black = [0,0,0];
+    red = [255,0,0];
+    green = [0,255,0];
+    blue = [0,0,255];
+    yellow = [255,255,0];
+    magenta = [255,0,255];
+    cyan = [0,255,255];
+    white = [255,255,255];
+
+    K_col = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
+
+    R_col = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+    G_col = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
+    B_col = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+
+    Y_col = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
+    M_col = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
+    C_col = [[cyan,white],[cyan,white],[white,cyan],[white,cyan],[white,white], [yellow,black],[yellow,black],[yellow,black],[black,yellow],[black,yellow], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,yellow], [black,black]];
+
+    W_col = [[white,white],[white,white],[white,white],[magenta,magenta],[magenta,magenta], [yellow,yellow],[yellow,yellow],[yellow,yellow],[cyan,cyan],[cyan,cyan], [black,black],[black,black],[black,black],[black,black],[black,black], [black,black]];
+
+    if (R == 255 && G== 255 && B == 255) {
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,W_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,W_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 255 && G== 255 && B == 0){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,Y_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,Y_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 255 && G== 0 && B == 255){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,M_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,M_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 0 && G== 255 && B == 255){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,C_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,C_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 255 && G== 0 && B == 0){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,R_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,R_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 0 && G== 255 && B == 0){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,G_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,G_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 0 && G== 0 && B == 255){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,B_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,B_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    else if(R == 0 && G== 0 && B == 0){
+        scannedData_new1 = agregation_array(i_g,scannedData_new1,width_image,0,K_col);
+        scannedData_new2 = agregation_array(i_g,scannedData_new2,width_image,1,K_col);
+        return [scannedData_new1, scannedData_new2];
+    }
+    
+}
+
+
+
+// [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
+
+
+function agregation_array(i_g,scannedData_new,width_image,img_0_or_1,Color_new){
+
+    black = [0,0,0];
+    red = [255,0,0];
+    green = [0,255,0];
+    blue = [0,0,255];
+    yellow = [255,255,0];
+    magenta = [255,0,255];
+    cyan = [0,255,255];
+    white = [255,255,255];
+
+    K_col = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
+
+    R_col = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+    G_col = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
+    B_col = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+
+    Y_col = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
+    M_col = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
+    C_col = [[cyan,white],[cyan,white],[white,cyan],[white,cyan],[white,white], [yellow,black],[yellow,black],[yellow,black],[black,yellow],[black,yellow], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,yellow], [black,black]];
+
+    W_col = [[white,white],[white,white],[white,white],[magenta,magenta],[magenta,magenta], [yellow,yellow],[yellow,yellow],[yellow,yellow],[cyan,cyan],[cyan,cyan], [black,black],[black,black],[black,black],[black,black],[black,black], [black,black]];
+
+
+    color_array = random_array(Color_new); // Color_new = K or R or G or B ...
+    i = i_g;
+    k = 16*width_image;
+    k2 = 32*width_image;
+    k3 = 48*width_image;
+
+    scannedData_new[i] = color_array[0][img_0_or_1][0];
+    scannedData_new[i+1] = color_array[0][img_0_or_1][1];
+    scannedData_new[i+2] = color_array[0][img_0_or_1][2];
+    scannedData_new[i+3] = 255;
+    //3 -> 255
+    scannedData_new[i+4] = color_array[1][img_0_or_1][0];
+    scannedData_new[i+5] = color_array[1][img_0_or_1][1];
+    scannedData_new[i+6] = color_array[1][img_0_or_1][2];
+    scannedData_new[i+7] = 255;
+    //7 -> 255
+    scannedData_new[i+8] = color_array[2][img_0_or_1][0];
+    scannedData_new[i+9] = color_array[2][img_0_or_1][1];
+    scannedData_new[i+10] = color_array[2][img_0_or_1][2];
+    scannedData_new[i+11] = 255;
+    //11 -> 255
+    scannedData_new[i+12] = color_array[3][img_0_or_1][0];
+    scannedData_new[i+13] = color_array[3][img_0_or_1][1];
+    scannedData_new[i+14] = color_array[3][img_0_or_1][2];
+    scannedData_new[i+15] = 255;
+    //15 -> 255
+
+
+
+    scannedData_new[i+k] = color_array[4][img_0_or_1][0];
+    scannedData_new[i+1+k] = color_array[4][img_0_or_1][1];
+    scannedData_new[i+2+k] = color_array[4][img_0_or_1][2];
+    scannedData_new[i+3+k] = 255;
+
+    scannedData_new[i+4+k] = color_array[5][img_0_or_1][0];
+    scannedData_new[i+5+k] = color_array[5][img_0_or_1][1];
+    scannedData_new[i+6+k] = color_array[5][img_0_or_1][2];
+    scannedData_new[i+7+k] = 255;
+
+    scannedData_new[i+8+k] = color_array[6][img_0_or_1][0];
+    scannedData_new[i+9+k] = color_array[6][img_0_or_1][1];
+    scannedData_new[i+10+k] = color_array[6][img_0_or_1][2];
+    scannedData_new[i+11+k] = 255;
+
+    scannedData_new[i+12+k] = color_array[7][img_0_or_1][0];
+    scannedData_new[i+13+k] = color_array[7][img_0_or_1][1];
+    scannedData_new[i+14+k] = color_array[7][img_0_or_1][2];
+    scannedData_new[i+15+k] = 255;
+
+
+
+    scannedData_new[i+k2] = color_array[8][img_0_or_1][0];
+    scannedData_new[i+1+k2] = color_array[8][img_0_or_1][1];
+    scannedData_new[i+2+k2] = color_array[8][img_0_or_1][2];
+    scannedData_new[i+3+k2] = 255;
+
+    scannedData_new[i+4+k2] = color_array[9][img_0_or_1][0];
+    scannedData_new[i+5+k2] = color_array[9][img_0_or_1][1];
+    scannedData_new[i+6+k2] = color_array[9][img_0_or_1][2];
+    scannedData_new[i+7+k2] = 255;
+
+    scannedData_new[i+8+k2] = color_array[10][img_0_or_1][0];
+    scannedData_new[i+9+k2] = color_array[10][img_0_or_1][1];
+    scannedData_new[i+10+k2] = color_array[10][img_0_or_1][2];
+    scannedData_new[i+11+k2] = 255;
+
+    scannedData_new[i+12+k2] = color_array[11][img_0_or_1][0];
+    scannedData_new[i+13+k2] = color_array[11][img_0_or_1][1];
+    scannedData_new[i+14+k2] = color_array[11][img_0_or_1][2];
+    scannedData_new[i+15+k2] = 255;
+
+
+
+    scannedData_new[i+k3] = color_array[12][img_0_or_1][0];
+    scannedData_new[i+1+k3] = color_array[12][img_0_or_1][1];
+    scannedData_new[i+2+k3] = color_array[12][img_0_or_1][2];
+    scannedData_new[i+3+k3] = 255;
+
+    scannedData_new[i+4+k3] = color_array[13][img_0_or_1][0];
+    scannedData_new[i+5+k3] = color_array[13][img_0_or_1][1];
+    scannedData_new[i+6+k3] = color_array[13][img_0_or_1][2];
+    scannedData_new[i+7+k3] = 255;
+
+    scannedData_new[i+8+k3] = color_array[14][img_0_or_1][0];
+    scannedData_new[i+9+k3] = color_array[14][img_0_or_1][1];
+    scannedData_new[i+10+k3] = color_array[14][img_0_or_1][2];
+    scannedData_new[i+11+k3] = 255;
+
+    scannedData_new[i+12+k3] = color_array[15][img_0_or_1][0];
+    scannedData_new[i+13+k3] = color_array[15][img_0_or_1][1];
+    scannedData_new[i+14+k3] = color_array[15][img_0_or_1][2];
+    scannedData_new[i+15+k3] = 255;
+
+    return scannedData_new
+}
+
 function SDES_cipher_image(scannedData,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
     scannedData_new1 = array_zeros_new_image(height_image,width_image); //
     scannedData_new2 = array_zeros_new_image(height_image,width_image);
-    i_size_array = width_image*4;
-    j_size_array = height_image*4;
+
+
     // Imagen normalizada
     count = 0;
     count_z = 0;
     flag = false;
     count_w = 0;
     i_g = 0;
-    for (let i = 0; i <= scannedData.length; i+=4) {
+    for (let i = 0; i <= scannedData.length ; i+=4) {
         R = scannedData[i];
         G = scannedData[i+1];
         B = scannedData[i+2];
@@ -132,117 +340,68 @@ function SDES_cipher_image(scannedData,height_image,width_image){ // Función qu
         scannedData[i] = colors[0];
         scannedData[i+1] = colors[1];
         scannedData[i+2] = colors[2];
-        
         if (Number.isInteger(count/width_image)) {
             i_g = i*16;
         }
         else{
-            i_g = i_g + 16
+            i_g = i_g + 16;
         }
-
-        transformation_m16(colors[0],colors[1],colors[2],i_g,width_image,scannedData_new1,scannedData_new2,count_w);
-        
+        full_2_array = transformation_m16(colors[0],colors[1],colors[2],i_g,width_image,scannedData_new1,scannedData_new2);
+        scannedData_new1 = full_2_array[0];
+        scannedData_new2 = full_2_array[1];
         count = count + 1;
         count_z = Math.trunc(count/width_image);
     }
-
-    // console.log(scannedData)
-    return scannedData
+    return [scannedData_new1,scannedData_new2];
 };
 
+function SDES_decipher_image(scannedData1,scannedData2,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
+    
+    scannedData_new1 = array_zeros_new_image_d(height_image,width_image); //
+    console.log(scannedData1.length,scannedData2.length,scannedData_new1.length)
+    scannedData_new1 = prod_lattice(scannedData1,scannedData2,scannedData_new1)
 
-// ---------------- CONFIGURATION COLORS -----------
-
-function transformation_m16(R,G,B,i_g,width_image,scannedData_new1,scannedData_new2,count_w){
-    if (R == 255 && G== 255 && B == 255) {
-        color_array_16 = random_array(W);
-        agregation_array(i,scannedData_new1,width_image,W,count_z);
-        
-    }
-}
-
-
-// [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
-
-black = [0,0,0,255];
-red = [255,0,0,255];
-green = [0,255,0,255];
-blue = [0,0,255,255];
-yellow = [255,255,0,255];
-magenta = [255,0,255,255];
-cyan = [0,255,255,255];
-white = [255,255,255,255];
-
-K = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
-
-R = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
-G = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
-B = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
-
-Y = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
-M = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
-C = [[cyan,white],[cyan,white],[white,cyan],[white,cyan],[white,white], [yellow,black],[yellow,black],[yellow,black],[black,yellow],[black,yellow], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,yellow], [black,black]];
-
-W = [[white,white],[white,white],[white,white],[magenta,magenta],[magenta,magenta], [yellow,yellow],[yellow,yellow],[yellow,yellow],[cyan,cyan],[cyan,cyan], [black,black],[black,black],[black,black],[black,black],[black,black], [black,black]];
-
-function agregation_array(i,array,width_image,color_16,img_1_or_2){
-
-    scannedData_new[i] = 
-    scannedData_new[i+1] =
-    scannedData_new[i+2] =
-    //3 -> 255
-    scannedData_new[i+4] =
-    scannedData_new[i+5] =
-    scannedData_new[i+6] =
-    //7 -> 255
-    scannedData_new[i+8] =
-    scannedData_new[i+9] =
-    scannedData_new[i+10] =
-    //11 -> 255
-    scannedData_new[i+12] =
-    scannedData_new[i+13] =
-    scannedData_new[i+14] =
-    //15 -> 255
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =
-    scannedData_new[i] =s
-
-}
-
+    return scannedData_new1;
+};
 
 // --------------------- INPUT PARA IMAGEN -----------------------
 
 image1.addEventListener('load', function(){ // Imprime la imagen
-    ctx.drawImage(image1,0,0, canvas.width, canvas.height);
+    ctx.drawImage(image1,0,0, canvas.width/4, canvas.height);
     const scannedImage = ctx.getImageData(0,0, canvas.width, canvas.height);
     const scannedData = scannedImage.data; // Array de datos img
     console.log(scannedData);
+
+    //--------------------------
+    // CIFRA IMAGEN
+    //--------------------------
+
+    scannedData_array = SDES_cipher_image(scannedData,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
    
-    // CIFRA O DECIFRA IMAGEN
+    scannedData1 = scannedData_array[0];
+    image_1 = ctx.getImageData(0,0,width_image*16,height_image*16);
+    image_1.data.set(new Uint8ClampedArray(scannedData1));
 
-    scannedData1 = SDES_cipher_image(scannedData,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
-    cipher_img = new ImageData(scannedData1,width_image,height_image);
 
-    console.log(scannedData1);
-    ctx.putImageData(cipher_img,0,0);
+
+    //--------------------------
+    // DECIFRA IMAGEN
+    //--------------------------
+
+    // ctx.drawImage(image2,0,0, canvas.width/36, canvas.height/36);
+    // const scannedImage2 = ctx.getImageData(0,0, canvas.width, canvas.height);
+    // const scannedData2 = scannedImage2.data; // Array de datos img
+
+    // scannedData_array = SDES_decipher_image(scannedData,scannedData2,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
+    
+    // scannedData1 = scannedData_array;
+    // console.log(scannedData1)
+    // image_1 = ctx.getImageData(0,0,width_image*2,height_image);
+    // image_1.data.set(new Uint8ClampedArray(scannedData1));
+
+    //--------------------------
+    
+    ctx.putImageData(image_1,0,0);
 })
 
 
