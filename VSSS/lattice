@@ -1,18 +1,18 @@
 Y,C,M 5x3=15+1 1(black)
 
                         |             K               |
-                        |     1C1C1 Y1Y1Y 10M0M 0     |                             3:0 6:1 3:Y 2:M 2:C 
-                        |     C1C1Y 1Y1Y1 010M0 M     |                             3:0 6:1 3:Y 2:M 2:C
+                        |     1C101 01Y1Y 10MYM C     |                             3:0 6:1 3:Y 2:M 2:C 
+                        |     01C1Y 101Y1 01CMY M     |                             3:0 6:1 3:Y 2:M 2:C
                         |                             |
-                        |     11111 11111 11MMM M     |
+                        |     11111 11111 11BRR B     |
                         |                             |
 
         R               |             G               |             B            | 
                         |                             |                          |  
 YMYMY 01C1C 10101 1     |     YCYCY 01M1M 10101 1     |     MCMC0 Y1Y1Y 10101 1  |  3:0 6:1 3:Y 2:M 2:C 
-MYMY0 1C1C1 01010 1     |     CYCY0 1M1M1 01010 1     |     CMCMC 1Y1Y1 01010 1  |  3:0 6:1 3:Y 2:M 2:C
+MYMY0 1C1C1 0101Y 1     |     CYCYY 1M1M1 01010 1     |     CMCMY 1Y1Y1 01010 1  |  3:0 6:1 3:Y 2:M 2:C
                         |                             |                          |   
-RRRRY 11111 11111 1     |     GGGGY 11111 11111 1     |     BBBBC 11111 11111 1  | 
+RRRRY 11111 11111 1     |     GGGGY 11111 11111 1     |     BBBBY 11111 11111 1  | 
 
         Y               |              M              |            C             |
                         |                             |                          |

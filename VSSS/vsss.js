@@ -1,12 +1,15 @@
 function array_zeros_new_image(height_image,width_image){
     index_cant = height_image*width_image*4*16;
+    console.log("h & w cipher",height_image,width_image, index_cant);
     array_zeros_total = Array(index_cant).fill(0);
     console.log("height_image", height_image, "width_image", width_image, array_zeros_total.length);
     return array_zeros_total;
 }
 
 function array_zeros_new_image_d(height_image,width_image){
-    index_cant = height_image*width_image*4*16;
+    
+    index_cant = height_image*width_image;
+    console.log("h & w decipher",height_image,width_image, index_cant);
     array_zeros_total = Array(index_cant).fill(0);
     return array_zeros_total;
 }
@@ -18,7 +21,7 @@ function arrayMax(arr) { // Max of array
 }
 
 function prod_lattice(arr1,arr2,arr3){
-    for (let i = 0; i < arr3.length; i++) {
+    for (let i = 0; i < arr1.length; i++) {
         if (arr1[i]==arr2[i] && arr1[i] == 255 ) {
             arr3[i] = 255;
         }
@@ -119,11 +122,11 @@ function transformation_m16(R,G,B,i_g,width_image,scannedData_new1,scannedData_n
     cyan = [0,255,255];
     white = [255,255,255];
 
-    K_col = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
+    K_col = [[black,white],[cyan,black],[black,cyan],[white,black],[black,yellow],  [white,black],[black,white],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,cyan],[yellow,magenta],[magenta,yellow], [cyan,magenta]];
 
-    R_col = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
-    G_col = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
-    B_col = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
+    R_col = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,yellow],[black,white],[black,white],[white,black],[white,black], [black,black]];
+    G_col = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,yellow], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
+    B_col = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,yellow], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
 
     Y_col = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
     M_col = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
@@ -185,29 +188,6 @@ function transformation_m16(R,G,B,i_g,width_image,scannedData_new1,scannedData_n
 // [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
 
 function agregation_array(i_g,scannedData_new,width_image,img_0_or_1,color_array){
-
-    black = [0,0,0];
-    red = [255,0,0];
-    green = [0,255,0];
-    blue = [0,0,255];
-    yellow = [255,255,0];
-    magenta = [255,0,255];
-    cyan = [0,255,255];
-    white = [255,255,255];
-
-    K_col = [[black,cyan],[cyan,black],[black,cyan],[cyan,black],[black,yellow],  [yellow,black],[black,yellow],[yellow,black],[black,yellow],[yellow,black], [black,white],[white,black],[magenta,white],[white,magenta],[magenta,white], [white,magenta]];
-
-    R_col = [[yellow,magenta],[magenta,yellow],[yellow,magenta],[magenta,yellow],[yellow, white], [white,black],[black,cyan],[cyan,black],[black,cyan],[cyan,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
-    G_col = [[yellow,cyan],[yellow,cyan],[cyan,yellow],[cyan,yellow],[yellow,white], [white,black],[white,black],[white,black],[black,white],[black,white], [black,white],[magenta,black],[magenta,black],[black,magenta],[black,magenta], [black,black]];
-    B_col = [[magenta,cyan],[magenta,cyan],[cyan,magenta],[cyan,magenta],[white,cyan], [yellow,black],[yellow,black],[black,yellow],[black,yellow],[yellow,black], [black,white],[black,white],[black,white],[white,black],[white,black], [black,black]];
-
-    Y_col = [[yellow,white],[yellow,white],[yellow,white],[white,yellow],[white,yellow], [white,yellow],[black,cyan],[black,cyan],[cyan,black],[cyan,black], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,black], [black,black]];
-    M_col = [[magenta,white],[magenta,white],[white,magenta],[white,magenta],[white,white], [black,yellow],[black,yellow],[yellow,black],[yellow,black],[yellow,black], [black,cyan],[black,cyan],[cyan,black],[cyan,black],[black,black], [black,yellow]];
-    C_col = [[cyan,white],[cyan,white],[white,cyan],[white,cyan],[white,white], [yellow,black],[yellow,black],[yellow,black],[black,yellow],[black,yellow], [black,magenta],[black,magenta],[magenta,black],[magenta,black],[black,yellow], [black,black]];
-
-    W_col = [[white,white],[white,white],[white,white],[magenta,magenta],[magenta,magenta], [yellow,yellow],[yellow,yellow],[yellow,yellow],[cyan,cyan],[cyan,cyan], [black,black],[black,black],[black,black],[black,black],[black,black], [black,black]];
-
-
     i = i_g;
     k = 16*width_image;
     k2 = 32*width_image;
@@ -303,18 +283,19 @@ function agregation_array(i_g,scannedData_new,width_image,img_0_or_1,color_array
 //                                         CIPHER FUNCTION
 //----------------------------------------------------------------------------------------------------------------
 
-function SDES_cipher_image(scannedData,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
+function VSSS_cipher_image(scannedData,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
 
-    scannedData_new1 = array_zeros_new_image(height_image,width_image); //
-    scannedData_new2 = array_zeros_new_image(height_image,width_image);
+    var scannedData_new1 = array_zeros_new_image(height_image,width_image); //
+    var scannedData_new2 = array_zeros_new_image(height_image,width_image);
+    console.log("scannedData_new1",scannedData_new1.length,"scannedData_new1",scannedData_new2.length);
 
     // Imagen normalizada
-    count = 0;
-    count_z = 0;
-    flag = false;
-    count_w = 0;
-    i_g = 0;
-    for (let i = 0; i <= scannedData.length ; i+=4) { //scannedData.length
+    var count = 0;
+    var count_z = 0;
+    var flag = false;
+    var i_g = 0;
+
+    for (let i = 0; i <= scannedData.length-1 ; i+=4) { //scannedData.length
         R = scannedData[i];
         G = scannedData[i+1];
         B = scannedData[i+2];
@@ -329,14 +310,13 @@ function SDES_cipher_image(scannedData,height_image,width_image){ // Función qu
         else{
             i_g = i_g + 16;
         }
-        
         full_2_array = transformation_m16(colors[0],colors[1],colors[2],i_g,width_image,scannedData_new1,scannedData_new2);
-        
         scannedData_new1 = full_2_array[0];
         scannedData_new2 = full_2_array[1];
         count = count + 1;
         count_z = Math.trunc(count/width_image);
     }
+    console.log("22222","scannedData_new1",scannedData_new1.length,"scannedData_new1",scannedData_new2.length);
     return [scannedData_new1,scannedData_new2];
 };
 
@@ -344,10 +324,10 @@ function SDES_cipher_image(scannedData,height_image,width_image){ // Función qu
 //                                         DECIPHER FUNCTION
 //----------------------------------------------------------------------------------------------------------------
 
-function SDES_decipher_image(scannedData1,scannedData2,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
+function VSSS_decipher_image(scannedData1,scannedData2,height_image,width_image){ // Función que cifra la imagen pos. [j,j+4,j+ancho,j+4+ancho] con key [k_0, k_1, k_2, k_3]
     
     scannedData_new1 = array_zeros_new_image_d(height_image,width_image); //
-    console.log(scannedData1.length,scannedData2.length,scannedData_new1.length)
+    console.log("wtf", scannedData1.length,scannedData2.length,scannedData_new1.length)
     scannedData_new1 = prod_lattice(scannedData1,scannedData2,scannedData_new1)
 
     return scannedData_new1;
@@ -358,129 +338,131 @@ function SDES_decipher_image(scannedData1,scannedData2,height_image,width_image)
 //                                              SHOW IMAGE 
 //----------------------------------------------------------------------------------------------------------------
 
-var canvas = document.getElementById('canvas1');
-var ctx = canvas.getContext('2d');
 
-// var ctx2 = canvas.getContext('2d');
+image_m1 = 'catc0.png'
+image_m2 = 'catc1.png'
 
-const image_cipher = new Image();           
-image_cipher.src = 'cat.png';              // Path de la imagen, o URL   ____INPUT____
-image_cipher.crossOrigin = 'anonymous';
+cipher_decipher = false
 
-const width_image = (image_cipher.width);    // Tamaño de la imagen Ancho
-const height_image = (image_cipher.height);  // Tamaño de la imagen Alto
-canvas.width = width_image;
-canvas.height = height_image;
+if (cipher_decipher == true){
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
+    const image_cipher = new Image();           
+    image_cipher.src = image_m1;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher.crossOrigin = 'anonymous';
+    var width_image = (image_cipher.width);    // Tamaño de la imagen Ancho
+    var height_image = (image_cipher.height);  // Tamaño de la imagen Alto
+    canvas.width = width_image;
+    canvas.height = height_image;
 
-
-
-// var canvas2 = document.getElementById('canvas2');
-// var ctx2 = canvas2.getContext('2d');
-// // var ctx2 = canvas.getContext('2d');
-// image_cipher.crossOrigin = 'anonymous';
-// const width_image_2 = (image_cipher.width*4);    // Tamaño de la imagen Ancho
-// const height_image_2 = (image_cipher.height*4);  // Tamaño de la imagen Alto
-// canvas.width = width_image_2;
-// canvas.height = height_image_2;
-
-
-
-
-//     //------------------------------------------------------------------------------------------------
-//     // --                                       CIFRA IMAGEN                                       ---
-//     //------------------------------------------------------------------------------------------------
-
-// console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image ) // Original image
+    var canvas2 = document.getElementById('canvas2');
+    var ctx2 = canvas2.getContext('2d');
+    const image_cipher2 = new Image();           
+    image_cipher2.src = image_m2;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher2.crossOrigin = 'anonymous';
+    const width_image_2 = (image_cipher2.width);    // Tamaño de la imagen Ancho
+    const height_image_2 = (image_cipher2.height);  // Tamaño de la imagen Alto
+    canvas2.width = width_image_2;
+    canvas2.height = height_image_2;
 
 
-// ctx.drawImage(image_cipher,0,0, canvas.width, canvas.height); // Draw original image 
-// const scannedImage = ctx.getImageData(0,0, canvas.width, canvas.height); 
-// const scannedData = scannedImage.data; // Array of image
-// console.log(scannedData);
+    var canvas3 = document.getElementById('canvas3');
+    var ctx3 = canvas3.getContext('2d');
+    const image_cipher3 = new Image();           
+    image_cipher3.src = image_m1;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher3.crossOrigin = 'anonymous';
+    const width_image_3 = (image_cipher.width*4);    // Tamaño de la imagen Ancho
+    const height_image_3 = (image_cipher.height*4);  // Tamaño de la imagen Alto
+    canvas3.width = width_image_3;
+    canvas3.height = height_image_3;
 
-// //-------------------------------------------------------------------------------------------------------
-
-// scannedData_array = SDES_cipher_image(scannedData,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
-
-// //-------------------------------------------------------------------------------------------------------
-
-// const cipher_image_1 = ctx.getImageData(0,0,width_image*16,height_image*16); //x,y,w,h
-// cipher_image_1.data.set(new Uint8ClampedArray(scannedData_array[0])); // assuming values 0..255, RGBA, pre-mult.
-// ctx.putImageData(cipher_image_1,0,0,0,0, width_image, height_image);
-// console.log(scannedData_array[0].length, "scannedData_array[0].length" );
-
-//-------------------------------------------------------------------------------------------------------
-
-// const cipher_image_2 = ctx.getImageData(0,0,width_image*16,height_image*16); //x,y,w,h
-// cipher_image_2.data.set(new Uint8ClampedArray(scannedData_array[1])); // assuming values 0..255, RGBA, pre-mult.
-// ctx2.putImageData(cipher_image_2,0,0);
-// console.log(scannedData_array[1].length, "scannedData_array[1].length" );
+    var canvas4 = document.getElementById('canvas4');
+    var ctx4 = canvas4.getContext('2d');
+    const image_cipher4 = new Image();           
+    image_cipher4.src = image_m2;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher4.crossOrigin = 'anonymous';
+    const width_image_4 = (image_cipher.width*4);    // Tamaño de la imagen Ancho
+    const height_image_4 = (image_cipher.height*4);  // Tamaño de la imagen Alto
+    canvas4.width = width_image_4;
+    canvas4.height = height_image_4;
 
 
-//------------------------------------------------------------------------------------------------------
-// --                                           DECIFRA IMAGEN                                       ---
-//------------------------------------------------------------------------------------------------------
+    image_cipher.addEventListener('load', function(){ // Imprime la imagen
 
-// var canvas = document.getElementById('wikitechyCanvas');
-// var ctx2 = canvas.getContext('2d');
+        ctx.drawImage(image_cipher,0,0, canvas.width, canvas.height); // Draw original image
+        const scannedImage = ctx.getImageData(0,0, canvas.width, canvas.height);
+        const scannedData = scannedImage.data; // Array de datos img
+        console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image ) // Original image  
+        console.log(scannedData);
+        //------------------------------------------------------------------------------------------------
+        // --                                          CIFRA IMAGEN                                       ---
+        //------------------------------------------------------------------------------------------------
+        scannedData_array = VSSS_cipher_image(scannedData,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
+        //-------------------------------------------------------------------------------------------------------        
         
-// const image_decipher = new Image();           
-// image_2_cipher.crossOrigin = 'anonymous';
-
-// const width_image_d = (width_image*4);    // Tamaño de la imagen Ancho
-// const height_image_d = (width_image*4);  // Tamaño de la imagen Alto
-
-// canvas.width = width_image_d;
-// canvas.height = height_image_d;
-
-// scannedData_array_d = SDES_decipher_image(scannedData_array[0],scannedData_array[1],height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
-
-// const decipher_image = ctx.getImageData(0,0,width_image_d,height_image_d); //x,y,w,h
-// decipher_image.data.set(new Uint8ClampedArray(scannedData_array_d)); // assuming values 0..255, RGBA, pre-mult.
-// ctx.putImageData(decipher_image,0,0);
-// console.log(scannedData_array_d.length, "scannedData_array_d.length" );
-
-image_cipher.addEventListener('load', function(){ // Imprime la imagen
-
-    ctx.drawImage(image_cipher,0,0, canvas.width/4, canvas.height/4); // Draw original image
-    const scannedImage = ctx.getImageData(0,0, canvas.width, canvas.height);
-    const scannedData = scannedImage.data; // Array de datos img
-    console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image ) // Original image  
-    console.log(scannedData);
-    //------------------------------------------------------------------------------------------------
-    // --                                          CIFRA IMAGEN                                       ---
-    //------------------------------------------------------------------------------------------------
-    scannedData_array = SDES_cipher_image(scannedData,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
-    //-------------------------------------------------------------------------------------------------------
-
-    // const cipher_image_1 = ctx.getImageData(0,0,width_image*16,height_image*16); //x,y,w,
-    // cipher_image_1.data.set(new Uint8ClampedArray(scannedData_array[0])); // assuming values 0..255, RGBA, pre-mult.
-    // console.log(scannedData_array[0].length, "scannedData_array[0].length" );
-    // ctx.putImageData(cipher_image_1,0,0);
-
-
-
-    // const cipher_image_2 = ctx.getImageData(0,0,width_image*16,height_image*16); //x,y,w,h
-    // cipher_image_2.data.set(new Uint8ClampedArray(scannedData_array[1])); // assuming values 0..255, RGBA, pre-mult.
-    // console.log(scannedData_array[1].length, "scannedData_array[1].length" );
-    // ctx.putImageData(cipher_image_2,0,0);
-
-    //------------------------------------------------------------------------------------------------------
-    // --                                           DECIFRA IMAGEN                                       ---
-    //------------------------------------------------------------------------------------------------------
-
-
-    scannedData_array_d = SDES_decipher_image(scannedData_array[0],scannedData_array[1],height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
-
-    const decipher_image = ctx.getImageData(0,0,width_image*4,width_image*4); //x,y,w,h
-    decipher_image.data.set(new Uint8ClampedArray(scannedData_array_d)); // assuming values 0..255, RGBA, pre-mult.
-    ctx.putImageData(decipher_image,0,0,0,0,width_image,width_image);
-
+        const cipher_image_3 = ctx3.getImageData(0,0,width_image_3,height_image_3); //x,y,w,h
+        cipher_image_3.data.set(new Uint8ClampedArray(scannedData_array[0])); // assuming values 0..255, RGBA, pre-mult.
+        // console.log(scannedData_array[0].length, "scannedData_array[1].length" );
+        ctx3.putImageData(cipher_image_3,0,0);
     
+        const cipher_image_4 = ctx4.getImageData(0,0,width_image_4,height_image_4); //x,y,w,h
+        cipher_image_4.data.set(new Uint8ClampedArray(scannedData_array[1])); // assuming values 0..255, RGBA, pre-mult.
+        // console.log(scannedData_array[1].length, "scannedData_array[1].length" );
+        ctx4.putImageData(cipher_image_4,0,0);
+        // ------------------------------------------------------------------------------------------------------
+        // --                                           DECIFRA IMAGEN                                       ---
+        // ------------------------------------------------------------------------------------------------------
+        // scannedData_array_d = VSSS_decipher_image(scannedData_array[0],scannedData_array[1],height_image*4,width_image*4); // FUNCIÓN QUE CIFRA IMAGEN
+        // var decipher_image = ctx3.getImageData(0,0,width_image*4,height_image*4); //x,y,w,h
+        // decipher_image.data.set(new Uint8ClampedArray(scannedData_array_d)); // assuming values 0..255, RGBA, pre-mult.
+        // ctx3.putImageData(decipher_image,0,0);
+    })
+}
+else{
+    var canvas = document.getElementById('canvas1');
+    var ctx = canvas.getContext('2d');
 
-    console.log(scannedData_array_d.length, "scannedData_array_d.length" );
+    const image_cipher = new Image();           
+    image_cipher.src = image_m1;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher.crossOrigin = 'anonymous';
+    var width_image = (image_cipher.width);    // Tamaño de la imagen Ancho
+    var height_image = (image_cipher.height);  // Tamaño de la imagen Alto
+    canvas.width = width_image;
+    canvas.height = height_image;
 
-})
+    var canvas2 = document.getElementById('canvas2');
+    var ctx2 = canvas2.getContext('2d');
+    const image_cipher2 = new Image();           
+    image_cipher2.src = image_m2;              // Path de la imagen, o URL   ____INPUT____
+    image_cipher2.crossOrigin = 'anonymous';
+    const width_image_2 = (image_cipher2.width);    // Tamaño de la imagen Ancho
+    const height_image_2 = (image_cipher2.height);  // Tamaño de la imagen Alto
+    canvas2.width = width_image_2;
+    canvas2.height = height_image_2;
+
+    image_cipher.addEventListener('load', function(){ // Imprime la imagen
+        ctx.drawImage(image_cipher,0,0, canvas1.width, canvas.height); // Draw original image
+        const scannedImage = ctx.getImageData(0,0, canvas.width, canvas.height);
+        const scannedData = scannedImage.data; // Array de datos img
+
+        ctx2.drawImage(image_cipher2,0,0, canvas2.width, canvas2.height); // Draw original image
+        const scannedImage2 = ctx2.getImageData(0,0, canvas2.width, canvas2.height);
+        const scannedData2 = scannedImage2.data; // Array de datos img
+        console.log(" Alto =", height_image, ", Ancho =", width_image, ", Pixeles =", height_image*width_image ) // Original image 
+        //------------------------------------------------------------------------------------------------------
+        // --                                           DECIFRA IMAGEN                                       ---
+        //------------------------------------------------------------------------------------------------------
+        scannedData_array_d = VSSS_decipher_image(scannedData,scannedData2,height_image,width_image); // FUNCIÓN QUE CIFRA IMAGEN
+        var decipher_image = ctx.getImageData(0,0,width_image,height_image); //x,y,w,h
+        decipher_image.data.set(new Uint8ClampedArray(scannedData_array_d)); // assuming values 0..255, RGBA, pre-mult.
+        ctx.putImageData(decipher_image,0,0,0,0,width_image,height_image);
+    })
+}
+
+
+
+
+
 
 
 
