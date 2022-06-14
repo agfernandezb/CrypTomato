@@ -1,0 +1,11 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.div_canvas {
+    max-height: 700px;
+    max-width: 1000px;
+    overflow: auto;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=2.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Visual Cryptography</title>
+</head>
+
+<body>
+    <h1>Upload an Image</h1>
+    <input type="file" id="image_inputE" accept="image/*"> <br>
+    <div class="div_canvas">
+        <canvas id="canvasNormal" width="10" height="10"></canvas>
+    </div>
+    <button id="encryptButton" name="encryptButton" type="button"> Encrypt </button> <br>
+    <div class="div_canvas">
+        <canvas id="canvasTrans1" width="10" height="10"></canvas>
+    </div>
+    <br>
+    <div class="div_canvas">
+        <canvas id="canvasTrans2" width="10" height="10"></canvas>
+    </div>
+    <h1>Decrypt an Image</h1>
+    <input type="file" id="image_inputD" accept="image/*" multiple> <br>
+    <div class="div_canvas">
+        <canvas id="canvasTrans1up" width="10" height="10"></canvas>
+    </div>
+    <br>
+    <div class="div_canvas">
+        <canvas id="canvasTrans2up" width="10" height="10"></canvas>
+    </div>
+    <button id="decryptButton" name="decryptButton" type="button"> Decrypt </button> <br>
+    <div class="div_canvas">
+        <canvas id="canvasDecrypt" width="10" height="10"></canvas>
+    </div>
+    <script src="vCryp.js"></script>
+</body>
+
+</html>
