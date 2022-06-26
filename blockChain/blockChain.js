@@ -156,12 +156,38 @@ class BlockChain {
     this.blockChainSuperUser = "Cryptomato";
   }
   createGenesisBlock() {
-    return new Block(Date.now(), [], "");
+    genesis = new Block(Date.now(), [], "");
+    var usuarios = ["Antonia", "Pedoro", "Linguini", "David"];
+    var transactions = [];
+    for (var i = 0; i < 5; ++i) {
+      transactions.push(
+        new Transaction(this.blockChainSuperUser, usuarios[i], 10)
+      );
+    }
+    genesis.transactions = transactions;
+    return genesis;
+  }
+  getBalanceOfUser(user) {
+    var balance = 0;
+    user = tools.normalizeInput(user);
+    for (var i = 0; i < this.chain.length; ++i) {
+      tempBlock = this.chain[i];
+      for (var j = 0; j < tempBlock.transactions; ++j) {
+        tempTransaction = tempBlock.transactions[j];
+        if (normalizeInput(tempTransaction.from) == user) {
+          balance -= tempTransaction.amount;
+        }
+        if (normalizeInput(tempTransaction.to) == user) {
+          balance += tempTransaction.amount;
+        }
+      }
+    }
   }
   getLastBlock() {
     return this.chain[this.chain - 1];
   }
   mineBlock(guess, miningBlockNumber) {
+    //add to this block the latest block address
     clearGuess = vigenere.vigenereCipher(
       this.blocksToMine[miningBlockNumber][1],
       guess
@@ -177,10 +203,28 @@ class BlockChain {
     }
     console.log("Incorrect guess mate");
   }
-  addBlocksToMine() {}
+  addBlocksToMine() {
+    if (this.pendingTransactions.length == 4) {
+      ///////////////////
+      ///////////////////
+      ///////////////////
+      ///////////////////
+      /////////////////// /////////////////// ///////////////////
+      ///////////////////
+      ///////////////////
+      ///////////////////
+      ///////////////////
+    }
+  }
   addTransaction(transaction) {
     if (!transaction.from || !transaction.to) {
       console.log("No user to send or receive the tomatoes");
+      return;
+    }
+    if (transaction.from == transaction.to) {
+      console.log(
+        "You cannot send tomateos to yourself, they are meant to be shared"
+      );
       return;
     }
     if (!transaction.isValid()) {
@@ -195,3 +239,4 @@ class BlockChain {
 }
 
 console.log("BEGINNING OF TESTS");
+tomatoChain = new BlockChain();
