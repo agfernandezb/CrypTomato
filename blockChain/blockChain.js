@@ -1,4 +1,12 @@
 ///////////////////////////////////////////////////////// Library
+var tools = require("./generalTools");
+
+function ranKey(size) {
+  var arrTemp = Array(size)
+    .fill(0)
+    .map(() => Math.round(Math.random() * 25));
+  return tools.codesToString(arrTemp);
+}
 var rmAccents = function (inputText) {
   var accents = "ÁÄáäÓÖóöÉËéÇçÍÏíïÚÜúüÑñ";
   var noAccents = "AAaaOOooEEeeCcIIiiUUuuNn";
@@ -94,7 +102,33 @@ function power(x, y, p) {
   return res;
 }
 ///////////////////////////////////////////////////////// Vigenere
-var tools = require("./vigenere");
+
+// Función que cifra (o descifra cuando cipher=false) un texto (clearText) usando el método de Vigenere con la clave (key).
+function vigenere(clearText, key, cipher) {
+  var normalTextCodes = tools.getCharCodes(tools.normalizeInput(clearText));
+  var normalKeyCodes = tools.getCharCodes(tools.normalizeInput(key));
+  var m = normalKeyCodes.length;
+  var indexKey = 0;
+  for (var i = 0; i < normalTextCodes.length; i++) {
+    indexKey = i % m;
+    if (cipher)
+      normalTextCodes[i] = (normalTextCodes[i] + normalKeyCodes[indexKey]) % 26;
+    else
+      normalTextCodes[i] =
+        (normalTextCodes[i] - normalKeyCodes[indexKey] + 26) % 26;
+  }
+  return tools.codesToString(normalTextCodes);
+}
+
+// Función que cifra un texto (clearText) con una clave (key) usando Vigenere.
+function vigenereCipher(clearText, key) {
+  return vigenere(clearText, key, true);
+}
+
+// Función que descifra un texto (cipherText) con una clave (key) usando Vigenere.
+function vigenereDecipher(cipherText, key) {
+  return vigenere(cipherText, key, false);
+}
 ///////////////////////////////////////////////////////// Beginning of blockchain
 //sha256
 const SHA256 = require("crypto-js/sha256");
@@ -135,7 +169,8 @@ class Block {
     this.time = time;
     this.transactions = transactions;
     this.previoushHash = previoushHash;
-    this.hash = "";
+    this.hash = this.getBlockHash();
+    this.text = "";
   }
 
   getBlockHash() {
@@ -147,16 +182,17 @@ class Block {
 
 class BlockChain {
   constructor() {
-    this.chain = [];
+    this.blockChainSuperUser = "Cryptomato";
+    this.chain = [this.createGenesisBlock()];
     this.height = 4;
     this.pendingTransactions = [];
     this.blocksToMine = []; //Arreglo de bloque y el texto cifrado
     this.miningReward = 0.4;
+    this.keyLength = 10;
     this.texts = getTexts();
-    this.blockChainSuperUser = "Cryptomato";
   }
   createGenesisBlock() {
-    genesis = new Block(Date.now(), [], "");
+    var genesis = new Block(Date.now(), [], "");
     var usuarios = ["Antonia", "Pedoro", "Linguini", "David"];
     var transactions = [];
     for (var i = 0; i < 5; ++i) {
@@ -186,34 +222,62 @@ class BlockChain {
   getLastBlock() {
     return this.chain[this.chain - 1];
   }
-  mineBlock(guess, miningBlockNumber) {
+  mineBlock(guess, miningBlockNumber, minerName) {
     //add to this block the latest block address
-    clearGuess = vigenere.vigenereCipher(
-      this.blocksToMine[miningBlockNumber][1],
+    clearGuess = vigenereDecipher(
+      this.blocksToMine[miningBlockNumber].text,
       guess
     );
     for (var i = 0; i < this.texts.length; ++i) {
       if (clearGuess == this.texts[i]) {
-        console.log(
-          "Block mined, the hash is: " + this.blocksToMine[0].getBlockHash()
+        reward = new Transaction(
+          this.blockChainSuperUser,
+          minerName,
+          this.miningReward
         );
-        //add money to the user from cryptomato
+        this.blocksToMine[miningBlockNumber][0].transaction.push(reward);
+        lastHash = this.getLastBlock.getBlockHash();
+        this.chain.push(this.blocksToMine[miningBlockNumber]);
+        this.blocksToMine.splice(miningBlockNumber, 1);
+        this.getLastBlock().Date = Date.now();
+        this.getLastBlock().previoushHash = lastHash;
+        console.log(
+          "Block mined, the hash is: " + this.getLastBlock().getBlockHash()
+        );
         break;
       }
     }
     console.log("Incorrect guess mate");
   }
+  isValid(transaction) {
+    var userBalance = this.getBalanceOfUser(transaction.from);
+    var user = normalizeInput(transaction.from);
+    for (var i = 0; i < this.pendingTransactions; ++i) {
+      if (normalizeInput(this.pendingTransactions[i].from) == user)
+        userBalance -= this.pendingTransactions[i].amount;
+    }
+    for (var i = 0; i < this.blocksToMine; ++i) {
+      var tempBlock = this.blocksToMine[i];
+      for (var j = 0; j < tempBlock.transactions; ++j) {
+        if (normalizeInput(tempBlock.pendingTransactions[j].from) == user)
+          userBalance -= tempBlock.pendingTransactions[j].amount;
+      }
+    }
+    return userBalance >= transaction.amount;
+  }
   addBlocksToMine() {
     if (this.pendingTransactions.length == 4) {
-      ///////////////////
-      ///////////////////
-      ///////////////////
-      ///////////////////
-      /////////////////// /////////////////// ///////////////////
-      ///////////////////
-      ///////////////////
-      ///////////////////
-      ///////////////////
+      var block = new Block("", [], "");
+      for (var i = 0; i < 4; ++i) {
+        block.transactions.push(this.pendingTransactions[i]);
+      }
+      for (var i = 3; i > 0; --i) {
+        this.pendingTransactions.splice(i, 1);
+      }
+      key = ranKey(this.keyLength);
+      cleartext = this.texts[Math.floor(Math.random() * this.texts.length)];
+      block.text = vigenereCipher(cleartext, key);
+      this.blocksToMine.push(block);
     }
   }
   addTransaction(transaction) {
@@ -227,7 +291,7 @@ class BlockChain {
       );
       return;
     }
-    if (!transaction.isValid()) {
+    if (!isValid(transaction)) {
       console.log(
         "The transaction is not valid, the sender must have enough tomatoes to send in his available pool"
       );
@@ -240,3 +304,6 @@ class BlockChain {
 
 console.log("BEGINNING OF TESTS");
 tomatoChain = new BlockChain();
+console.log(tomatoChain.chain[0].transactions[0].from);
+var array = ["1", 3];
+console.log(array[0] + 1, array[1]);
