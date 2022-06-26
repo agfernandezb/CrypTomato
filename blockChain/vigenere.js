@@ -30,20 +30,20 @@ function vigenereDecipher(cipherText, key) {
 }
 
 //Ejemplo para vigenereCipher y vigenereDecipher
-console.log("CIPHER");
-console.log(
-  vigenereCipher(
-    "From Zanzibar to Zambia to Zaire, ozone zones make zebras run zany zigzags",
-    "zone"
-  )
-);
-console.log("DECIPHER");
-console.log(
-  vigenereDecipher(
-    "efbqyoadhpnvscmelpvescmehfrsycaiycairanodnrfqofvtbmemmmmfnnkr",
-    "zone"
-  )
-);
+//console.log("CIPHER");
+// console.log(
+//   vigenereCipher(
+//     "From Zanzibar to Zambia to Zaire, ozone zones make zebras run zany zigzags",
+//     "zone"
+//   )
+// );
+// console.log("DECIPHER");
+// console.log(
+//   vigenereDecipher(
+//     "efbqyoadhpnvscmelpvescmehfrsycaiycairanodnrfqofvtbmemmmmfnnkr",
+//     "zone"
+//   )
+// );
 
 // Función que retorna una palabra aleatoria de longitud m, puede ser usada como clave.
 function ranKey(size) {
@@ -53,7 +53,7 @@ function ranKey(size) {
   return tools.codesToString(arrTemp);
 }
 
-console.log(ranKey(10));
+//console.log(ranKey(10));
 
 // Función que retorna la frecuencia de todas las subpalabras de longitud lenChar de un texto (text)
 function charFrecuency(text, lenChar) {
@@ -268,18 +268,18 @@ function vigenereCryptanalysis(cipherText, m) {
 }
 
 // Ejemplo para vigenereCryptanalysis
-console.log(
-  vigenereCryptanalysis(
-    normalizeInput(
-      `CHREEVOAHMAERATBIAXXWTNXBEEOPHBSBQMQEQERBW
-            RVXUOAKXAOSXXWEAHBWGJMMQMNKGRFVGXWTRZXWIAK
-            LXFPSKAUTEMNDCMGTSXMXBTUIADNGMGPSRELXNJELX
-            VRVPRTULHDNQWTWDTYGBPHXTFALJHASVBFXNGLLCHR
-            ZBWELEKMSJIKNBHWRJGNMGJSGLXFEYPHAGNRBIEQJT
-            AMRVLCRREMNDGLXRRIMGNSNRWCHRQHAEYEVTAQEBBI
-            PEEWEVKAKOEWADREMXMTBHHCHRTKDNVRZCHRCLQOHP
-            WQAIIWXNRMGWOIIFKEE`
-    ),
-    5
-  )
-);
+// console.log(
+//   vigenereCryptanalysis(
+//     normalizeInput(
+//       `CHREEVOAHMAERATBIAXXWTNXBEEOPHBSBQMQEQERBW
+//             RVXUOAKXAOSXXWEAHBWGJMMQMNKGRFVGXWTRZXWIAK
+//             LXFPSKAUTEMNDCMGTSXMXBTUIADNGMGPSRELXNJELX
+//             VRVPRTULHDNQWTWDTYGBPHXTFALJHASVBFXNGLLCHR
+//             ZBWELEKMSJIKNBHWRJGNMGJSGLXFEYPHAGNRBIEQJT
+//             AMRVLCRREMNDGLXRRIMGNSNRWCHRQHAEYEVTAQEBBI
+//             PEEWEVKAKOEWADREMXMTBHHCHRTKDNVRZCHRCLQOHP
+//             WQAIIWXNRMGWOIIFKEE`
+//     ),
+//     5
+//   )
+// );

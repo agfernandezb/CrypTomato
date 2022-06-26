@@ -94,7 +94,7 @@ function power(x, y, p) {
   return res;
 }
 ///////////////////////////////////////////////////////// Vigenere
-
+var tools = require("./vigenere");
 ///////////////////////////////////////////////////////// Beginning of blockchain
 //sha256
 const SHA256 = require("crypto-js/sha256");
@@ -116,9 +116,19 @@ function getTexts() {
   return array;
 }
 
-texts = getTexts();
-console.log(texts[0]);
-console.log(texts[1]);
+// console.log(texts[0]);
+// console.log(texts[1]);
+
+class Transaction {
+  constructor(from, to, amount) {
+    this.from = from;
+    this.to = to;
+    this.amount = amount;
+  }
+  calculateHash() {
+    return SHA256(this.from + this.to + this.amount).toString();
+  }
+}
 
 class Block {
   constructor(time, transactions, previoushHash = "") {
@@ -135,25 +145,15 @@ class Block {
   }
 }
 
-class Transaction {
-  constructor(from, to, amount) {
-    this.from = from;
-    this.to = to;
-    this.amount = amount;
-  }
-  calculateHash() {
-    return SHA256(this.from + this.to + this.amount).toString();
-  }
-}
-
 class BlockChain {
   constructor() {
     this.chain = [];
     this.height = 4;
     this.pendingTransactions = [];
-    this.blocksToMine = [];
+    this.blocksToMine = []; //Arreglo de bloque y el texto cifrado
     this.miningReward = 0.4;
     this.texts = getTexts();
+    this.blockChainSuperUser = "Cryptomato";
   }
   createGenesisBlock() {
     return new Block(Date.now(), [], "");
@@ -161,5 +161,37 @@ class BlockChain {
   getLastBlock() {
     return this.chain[this.chain - 1];
   }
-  mineBlock(guess) {}
+  mineBlock(guess, miningBlockNumber) {
+    clearGuess = vigenere.vigenereCipher(
+      this.blocksToMine[miningBlockNumber][1],
+      guess
+    );
+    for (var i = 0; i < this.texts.length; ++i) {
+      if (clearGuess == this.texts[i]) {
+        console.log(
+          "Block mined, the hash is: " + this.blocksToMine[0].getBlockHash()
+        );
+        //add money to the user from cryptomato
+        break;
+      }
+    }
+    console.log("Incorrect guess mate");
+  }
+  addBlocksToMine() {}
+  addTransaction(transaction) {
+    if (!transaction.from || !transaction.to) {
+      console.log("No user to send or receive the tomatoes");
+      return;
+    }
+    if (!transaction.isValid()) {
+      console.log(
+        "The transaction is not valid, the sender must have enough tomatoes to send in his available pool"
+      );
+      return;
+    }
+    this.pendingTransactions.push(transaction);
+    this.addBlocksToMine();
+  }
 }
+
+console.log("BEGINNING OF TESTS");
