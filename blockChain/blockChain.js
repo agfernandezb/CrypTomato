@@ -192,24 +192,41 @@ class BlockChain {
     this.texts = getTexts();
   }
   createGenesisBlock() {
-    var genesis = new Block(Date.now(), [], "");
+    var genesis = new Block(new Date(Date.now()).toString(), [], "");
     var usuarios = ["Antonia", "Pedoro", "Linguini", "David"];
     var transactions = [];
-    for (var i = 0; i < 5; ++i) {
+    for (var i = 0; i < 4; ++i) {
       transactions.push(
         new Transaction(this.blockChainSuperUser, usuarios[i], 10)
       );
     }
     genesis.transactions = transactions;
+    genesis.hash = genesis.getBlockHash();
     return genesis;
+  }
+  printPendingTransactions() {
+    for (var i = 0; i < this.pendingTransactions.length; ++i) {
+      console.log(
+        "Transaction #" +
+          (i + 1) +
+          " " +
+          this.pendingTransactions[i].from +
+          " " +
+          this.pendingTransactions[i].to +
+          " " +
+          this.pendingTransactions[i].amount
+      );
+    }
   }
   getBalanceOfUser(user) {
     var balance = 0;
     user = tools.normalizeInput(user);
+    //console.log(user);
     for (var i = 0; i < this.chain.length; ++i) {
-      tempBlock = this.chain[i];
-      for (var j = 0; j < tempBlock.transactions; ++j) {
-        tempTransaction = tempBlock.transactions[j];
+      var tempBlock = this.chain[i];
+      for (var j = 0; j < tempBlock.transactions.length; ++j) {
+        var tempTransaction = tempBlock.transactions[j];
+        //console.log(normalizeInput(tempTransaction.from));
         if (normalizeInput(tempTransaction.from) == user) {
           balance -= tempTransaction.amount;
         }
@@ -218,33 +235,39 @@ class BlockChain {
         }
       }
     }
+    return balance;
   }
   getLastBlock() {
-    return this.chain[this.chain - 1];
+    return this.chain[this.chain.length - 1];
   }
   mineBlock(guess, miningBlockNumber, minerName) {
     //add to this block the latest block address
-    clearGuess = vigenereDecipher(
+    if (
+      miningBlockNumber > this.blocksToMine.length ||
+      this.blocksToMine.length == 0
+    ) {
+      return;
+    }
+    var clearGuess = vigenereDecipher(
       this.blocksToMine[miningBlockNumber].text,
       guess
     );
     for (var i = 0; i < this.texts.length; ++i) {
       if (clearGuess == this.texts[i]) {
-        reward = new Transaction(
+        var reward = new Transaction(
           this.blockChainSuperUser,
           minerName,
           this.miningReward
         );
-        this.blocksToMine[miningBlockNumber][0].transaction.push(reward);
-        lastHash = this.getLastBlock.getBlockHash();
+        this.blocksToMine[miningBlockNumber].transactions.push(reward);
+        var lastHash = this.getLastBlock().getBlockHash();
         this.chain.push(this.blocksToMine[miningBlockNumber]);
         this.blocksToMine.splice(miningBlockNumber, 1);
-        this.getLastBlock().Date = Date.now();
+        this.getLastBlock().time = new Date(Date.now()).toString();
         this.getLastBlock().previoushHash = lastHash;
-        console.log(
-          "Block mined, the hash is: " + this.getLastBlock().getBlockHash()
-        );
-        break;
+        this.getLastBlock().hash = this.getLastBlock().getBlockHash();
+        console.log("Block mined, the hash is: " + this.getLastBlock().hash);
+        return;
       }
     }
     console.log("Incorrect guess mate");
@@ -252,30 +275,33 @@ class BlockChain {
   isValid(transaction) {
     var userBalance = this.getBalanceOfUser(transaction.from);
     var user = normalizeInput(transaction.from);
-    for (var i = 0; i < this.pendingTransactions; ++i) {
+    for (var i = 0; i < this.pendingTransactions.length; ++i) {
       if (normalizeInput(this.pendingTransactions[i].from) == user)
         userBalance -= this.pendingTransactions[i].amount;
     }
-    for (var i = 0; i < this.blocksToMine; ++i) {
+    for (var i = 0; i < this.blocksToMine.length; ++i) {
       var tempBlock = this.blocksToMine[i];
-      for (var j = 0; j < tempBlock.transactions; ++j) {
+      for (var j = 0; j < tempBlock.transactions.length; ++j) {
         if (normalizeInput(tempBlock.pendingTransactions[j].from) == user)
           userBalance -= tempBlock.pendingTransactions[j].amount;
       }
     }
     return userBalance >= transaction.amount;
   }
+
   addBlocksToMine() {
-    if (this.pendingTransactions.length == 4) {
+    if (this.pendingTransactions.length == this.height) {
       var block = new Block("", [], "");
       for (var i = 0; i < 4; ++i) {
         block.transactions.push(this.pendingTransactions[i]);
       }
-      for (var i = 3; i > 0; --i) {
+      for (var i = 3; i >= 0; --i) {
         this.pendingTransactions.splice(i, 1);
       }
-      key = ranKey(this.keyLength);
-      cleartext = this.texts[Math.floor(Math.random() * this.texts.length)];
+      //var key = ranKey(this.keyLength);
+      var key = "aaaaaaaaaa";
+      console.log("KEY", key);
+      var cleartext = this.texts[Math.floor(Math.random() * this.texts.length)];
       block.text = vigenereCipher(cleartext, key);
       this.blocksToMine.push(block);
     }
@@ -291,7 +317,7 @@ class BlockChain {
       );
       return;
     }
-    if (!isValid(transaction)) {
+    if (!this.isValid(transaction)) {
       console.log(
         "The transaction is not valid, the sender must have enough tomatoes to send in his available pool"
       );
@@ -304,6 +330,30 @@ class BlockChain {
 
 console.log("BEGINNING OF TESTS");
 tomatoChain = new BlockChain();
-console.log(tomatoChain.chain[0].transactions[0].from);
-var array = ["1", 3];
-console.log(array[0] + 1, array[1]);
+console.log(tomatoChain.chain[0].transactions.length);
+
+var usuarios = ["Antonia", "Pedoro", "Linguini", "David"];
+
+console.log(tomatoChain.getBalanceOfUser("Antonia"));
+
+transaction = new Transaction(usuarios[0], usuarios[1], 5);
+
+tomatoChain.addTransaction(transaction);
+
+tomatoChain.printPendingTransactions();
+
+console.log(JSON.stringify(tomatoChain.pendingTransactions));
+
+tomatoChain.addTransaction(transaction);
+tomatoChain.addTransaction(transaction);
+tomatoChain.addTransaction(transaction);
+
+console.log(JSON.stringify(tomatoChain.pendingTransactions));
+
+console.log(JSON.stringify(tomatoChain.blocksToMine));
+
+tomatoChain.mineBlock("aaaaaaaaaa", 0, "Linguini");
+
+console.log(JSON.stringify(tomatoChain.blocksToMine));
+
+console.log(JSON.stringify(tomatoChain.chain));
