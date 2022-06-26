@@ -190,6 +190,7 @@ class BlockChain {
     this.miningReward = 0.4;
     this.keyLength = 10;
     this.texts = getTexts();
+    this.users = ["Antonia", "Pedoro", "Linguini", "David"];
   }
   createGenesisBlock() {
     var genesis = new Block(new Date(Date.now()).toString(), [], "");
@@ -237,6 +238,47 @@ class BlockChain {
     }
     return balance;
   }
+
+  getTotalBalance() {
+    var usersBalance = [];
+    for (var z = 0; z < this.users.length; ++z) {
+      var userInfo = [];
+      var tempUsuario = this.users[z];
+      var historicBalance = 0;
+      var pendingBalance = 0;
+
+      tempUsuario = tools.normalizeInput(tempUsuario);
+      for (var i = 0; i < this.chain.length; ++i) {
+        var tempBlock = this.chain[i];
+        for (var j = 0; j < tempBlock.transactions.length; ++j) {
+          var tempTransaction = tempBlock.transactions[j];
+          if (normalizeInput(tempTransaction.from) == tempUsuario) {
+            historicBalance -= tempTransaction.amount;
+          }
+          if (normalizeInput(tempTransaction.to) == tempUsuario) {
+            historicBalance += tempTransaction.amount;
+          }
+        }
+      }
+      for (var i = 0; i < this.pendingTransactions.length; ++i) {
+        if (normalizeInput(this.pendingTransactions[i].from) == tempUsuario)
+          pendingBalance -= this.pendingTransactions[i].amount;
+      }
+      for (var i = 0; i < this.blocksToMine.length; ++i) {
+        var tempBlock = this.blocksToMine[i];
+        for (var j = 0; j < tempBlock.transactions.length; ++j) {
+          if (normalizeInput(tempBlock.transactions[j].from) == tempUsuario)
+            pendingBalance -= tempBlock.transactions[j].amount;
+        }
+      }
+      userInfo.push(tempUsuario);
+      userInfo.push(historicBalance);
+      userInfo.push(pendingBalance);
+      usersBalance.push(userInfo);
+    }
+    return usersBalance;
+  }
+
   getLastBlock() {
     return this.chain[this.chain.length - 1];
   }
@@ -282,8 +324,8 @@ class BlockChain {
     for (var i = 0; i < this.blocksToMine.length; ++i) {
       var tempBlock = this.blocksToMine[i];
       for (var j = 0; j < tempBlock.transactions.length; ++j) {
-        if (normalizeInput(tempBlock.pendingTransactions[j].from) == user)
-          userBalance -= tempBlock.pendingTransactions[j].amount;
+        if (normalizeInput(tempBlock.transactions[j].from) == tempUsuario)
+          userBalance -= tempBlock.transactions[j].amount;
       }
     }
     return userBalance >= transaction.amount;
@@ -298,9 +340,9 @@ class BlockChain {
       for (var i = 3; i >= 0; --i) {
         this.pendingTransactions.splice(i, 1);
       }
-      //var key = ranKey(this.keyLength);
-      var key = "aaaaaaaaaa";
-      console.log("KEY", key);
+      var key = ranKey(this.keyLength);
+      //var key = "aaaaaaaaaa";
+      //console.log("KEY", key);
       var cleartext = this.texts[Math.floor(Math.random() * this.texts.length)];
       block.text = vigenereCipher(cleartext, key);
       this.blocksToMine.push(block);
@@ -336,7 +378,7 @@ var usuarios = ["Antonia", "Pedoro", "Linguini", "David"];
 
 console.log(tomatoChain.getBalanceOfUser("Antonia"));
 
-transaction = new Transaction(usuarios[0], usuarios[1], 5);
+transaction = new Transaction(usuarios[0], usuarios[1], 1);
 
 tomatoChain.addTransaction(transaction);
 
@@ -348,12 +390,4 @@ tomatoChain.addTransaction(transaction);
 tomatoChain.addTransaction(transaction);
 tomatoChain.addTransaction(transaction);
 
-console.log(JSON.stringify(tomatoChain.pendingTransactions));
-
-console.log(JSON.stringify(tomatoChain.blocksToMine));
-
-tomatoChain.mineBlock("aaaaaaaaaa", 0, "Linguini");
-
-console.log(JSON.stringify(tomatoChain.blocksToMine));
-
-console.log(JSON.stringify(tomatoChain.chain));
+console.log(tomatoChain.getTotalBalance().toString());
