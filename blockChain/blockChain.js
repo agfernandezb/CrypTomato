@@ -391,3 +391,5 @@ tomatoChain.addTransaction(transaction);
 tomatoChain.addTransaction(transaction);
 
 console.log(tomatoChain.getTotalBalance().toString());
+
+console.log(JSON.stringify(tomatoChain.blocksToMine));
